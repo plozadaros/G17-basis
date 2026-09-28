@@ -1,0 +1,59 @@
+:root {
+    color-scheme: light dark;
+}
+
+body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "cabecera"
+        "promo"
+        "lateral"
+        "contenido"
+        "pie";
+    grid-auto-rows: auto auto auto 1fr auto;
+}
+
+header {
+    grid-area: cabecera;
+}
+
+.promo {
+    grid-area: promo;
+}
+
+main {
+    grid-area: contenido;
+}
+
+aside {
+    grid-area: lateral;
+}
+
+footer {
+    grid-area: pie;
+}
+
+@media (min-width: 64em) {
+    body {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-areas:
+            "cabecera cabecera"
+            "promo promo"
+            "contenido lateral"
+            "pie pie";
+        grid-template-rows: auto auto 1fr auto;
+    }
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
