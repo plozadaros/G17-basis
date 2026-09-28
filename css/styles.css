@@ -112,10 +112,11 @@ body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 
         "cabecera"
+        "promo"
         "lateral"
         "contenido"
         "pie";
-    grid-auto-rows: auto auto 1fr auto;
+    grid-auto-rows: auto auto auto 1fr auto;
     gap: 24px;
     min-height: 100vh;
 }
@@ -327,18 +328,14 @@ figure{
     margin-top: 16px;
 }
 footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     margin-top: 2rem;
     padding: 1.5rem 0;
     border-top: 1px solid var(--borde);
     color: var(--texto-suave);
     font-size: 0.875rem;
-}
-footer > div {
-    flex: 1 1 200px;
 }
 footer h2 {
     font-size: 1rem;
@@ -405,10 +402,34 @@ footer address {
 .productos{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+    grid-auto-flow: dense;
     /* primero filas / columnas */
     gap: 24px 16px;
 }
 header{grid-area: cabecera;}
+.promo{
+    grid-area: promo;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--tarjeta);
+    border: 1px solid var(--borde);
+    border-left: 5px solid var(--marca);
+    border-radius: var(--radio);
+    padding: 1rem 1.25rem;
+}
+.promo img{
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+}
+.promo h2{
+    margin: 0;
+}
+.promo p{
+    margin: 0.25rem 0 0;
+}
 main{grid-area: contenido;}
 aside{grid-area: lateral; align-self: start;}
 footer{grid-area: pie;}
@@ -440,18 +461,37 @@ footer{grid-area: pie;}
         grid-column: span 2;
         grid-row: span 2;
     }
+    .productos article:nth-child(2) {
+        grid-column: span 2;
+    }
     .envio {
         grid-template-columns: 1fr 1fr;
+    }
+    #compra form {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 0 20px;
+    }
+    #compra .envio {
+        grid-row: 1 / 3;
+    }
+    #compra form > button[type="submit"] {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+    footer {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 @media(min-width : 64em) {
     body {
-        grid-template-columns: 300px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) 300px;
         grid-template-areas: 
         "cabecera cabecera"
-        "lateral contenido"
+        "promo promo"
+        "contenido lateral"
         "pie pie";
-        grid-template-rows: auto 1fr auto;
+        grid-template-rows: auto auto 1fr auto;
     }
 }
 @media (min-width: 75em) {
