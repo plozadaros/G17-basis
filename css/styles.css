@@ -121,7 +121,7 @@ body {
 }
 /* id -> clase -> etiqueta (1) */
 h1 { color: var(--marca); font-size: 2rem;} 
-h2{ font-size: clamp(1.25rem, 1rem + 1,2vw, 1.5rem);}
+h2{ font-size: clamp(1.25rem, 1rem + 1.2vw, 1.5rem);}
 h2::after{
     content: "";
     display: block;
@@ -230,7 +230,7 @@ legend {
 #compra input[type="checkbox"] {
     flex: 0 0 auto;
 }
-#compra[type="radio"] + label,
+#compra [type="radio"] + label,
 #compra [type="checkbox"] + label {
     margin-left: 0.35rem;
 }
@@ -329,23 +329,78 @@ figure{
 footer {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
+    align-items: flex-start;
+    gap: 24px;
     margin-top: 2rem;
     padding: 1.5rem 0;
     border-top: 1px solid var(--borde);
-    text-align: center;
     color: var(--texto-suave);
     font-size: 0.875rem;
+}
+footer > div {
+    flex: 1 1 200px;
+}
+footer h2 {
+    font-size: 1rem;
+    color: var(--texto);
+    margin: 0 0 0.5rem;
+}
+footer h2::after {
+    display: none;
+}
+footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 footer p,
 footer address {
     margin: 0;
 }
-footer address{
-    order: -1;
-    margin-right: auto;
+footer address {
     font-style: normal;
+}
+.categorias ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 1rem;
+}
+.categorias a {
+    display: inline-block;
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    padding: 0.25rem 0.9rem;
+}
+.carrito {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.contador {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: var(--sobre-marca);
+    color: var(--marca);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+}
+.fila p {
+    flex: 1;
+    min-width: 0;
+}
+.envio > .fila {
+    grid-column: 1 / -1;
 }
 .productos{
     display: grid;

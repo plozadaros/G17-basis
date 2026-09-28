@@ -24,11 +24,23 @@
                 </li>
             </ul>
         </nav>
+        <button class="carrito" type="button">
+            Comprar
+            <span class="contador">3</span>
+        </button>
     </header>
     <!-- CONTENIDO PRINCIPAL -->
     <main>
         <section id="catalogo">
             <h2>Catalogo de productos</h2>
+            <nav class="categorias" aria-label="Categorias">
+                <ul>
+                    <li><a href="#catalogo">Laptops</a></li>
+                    <li><a href="#catalogo">Monitores</a></li>
+                    <li><a href="#catalogo">Teclados</a></li>
+                    <li><a href="#catalogo">Audio</a></li>
+                </ul>
+            </nav>
             <div class="productos">
                 <article class="destacado">
                     <figure>
@@ -66,7 +78,16 @@
                     <p><strong>$1,009.99</strong></p>
                     <button type="button">Agregar al carrito</button>
                 </article>
-            <div>
+                <article>
+                    <figure>
+                        <img src="img/macbookpro14.jpg" alt="Macbook Pro 14 pulgadas plateada, vista desde arriba" width="200"/>
+                        <figcaption>Apple</figcaption>
+                    </figure>
+                    <h3>Macbook Pro 14" plata</h3>
+                    <p><strong>$1,799.99</strong></p>
+                    <button type="button">Agregar al carrito</button>
+                </article>
+            </div>
         </section>
         <section id="compra">
             <h2>Finalizar compra</h2>
@@ -85,6 +106,7 @@
                         <label for="direccion">Direccion</label><br/>
                         <input type="text" id="direccion" name="direccion" required minlength="5" autocomplete="address-line1">
                     </p>
+                    <div class="fila">
                     <p>
                         <label for="ciudad">Ciudad</label><br/>
                         <input type="text" id="ciudad" name="ciudad" list="ciudades" required autocomplete="address-level2">    
@@ -107,6 +129,8 @@
                             <option value="es">Espana</option>
                         </select>
                     </p>
+                    </div>
+                    <div class="fila">
                     <p>
                         <label for="telefono">Telefono</label><br/>
                         <input type="tel" id="telefono" pattern="[0-9]{7,}" title="Solo numeros, al menos 7 digitos" autocomplete="tel">
@@ -115,6 +139,7 @@
                         <label for="fecha">Fecha de entrega deseada</label><br/>
                         <input type="date" id="fecha" name="fecha">
                     </p>
+                    </div>
                     <p>
                         <label for="cantidad">Cantidad de unidades</label>
                         <input type="number" id="cantidad" name="cantidad" min="1" max="10" step="1" value="1" required>
@@ -187,9 +212,23 @@
     </aside>
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 TechCart - Proyecto educativo</p>
-        <p>Datos e imagenes de <a href="https://dummyjson.com" target="_blank" rel="noopener">DummyJson</a></p>
-        <address>Contacto: <a href="mailto:edwardhc1997@gmail.com">edwardhc1997@gmail.com</a></address>
+        <div class="marca">
+            <h2>TechCart</h2>
+            <p>&copy; 2026 TechCart - Proyecto educativo</p>
+        </div>
+        <div class="enlaces">
+            <h2>Enlaces</h2>
+            <ul>
+                <li><a href="#catalogo">Catalogo</a></li>
+                <li><a href="#compra">Comprar</a></li>
+                <li><a href="https://dummyjson.com" target="_blank" rel="noopener">Datos e imagenes de DummyJson</a></li>
+            </ul>
+        </div>
+        <div class="contacto">
+            <h2>Contacto</h2>
+            <address>Contacto: <a href="mailto:edwardhc1997@gmail.com">edwardhc1997@gmail.com</a></address>
+            <p>Lunes a sabado, 10:00 a 20:00</p>
+        </div>
     </footer>
 </body>
 </html>
