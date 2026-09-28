@@ -15,6 +15,7 @@
     --radio: 12px;
     --espacio: 1rem;
     --fuente : system-ui, -apple-system, "Segoe UI", Roboto, san-serif;
+    --sombra: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 @media (prefers-color-scheme: dark) {
     :root{
@@ -29,10 +30,14 @@
         --texto: #f5f5f7;
         --texto-suave: #a1a1a6;
         --borde: #3a3a3c;
+        --sombra: 0 16px 32px rgba(0, 0, 0, 0.7);
     }
 }
 /* TIPO */
 header{
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -159,6 +164,67 @@ article img {
 article button {
     margin-top: auto;
     align-self: center;
+}
+article {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.productos article:hover,
+.franja article:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra);
+}
+article figure {
+    overflow: hidden;
+    border-radius: 8px;
+}
+article img {
+    transition: transform 0.3s ease;
+}
+.productos article:hover img {
+    transform: scale(1.05);
+}
+.productos article,
+.franja article {
+    animation: aparecer 0.5s ease-out backwards;
+}
+.productos article:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.productos article:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.productos article:nth-child(4) {
+    animation-delay: 0.3s;
+}
+.productos article:nth-child(5) {
+    animation-delay: 0.4s;
+}
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.franja {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+.franja .icono {
+    font-size: 2rem;
+    margin: 0 0 0.5rem;
+}
+.franja h3 {
+    margin: 0 0 0.5rem;
+    color: var(--marca);
+}
+.franja p:last-child {
+    margin: 0;
+    color: var(--texto-suave);
 }
 article h3 {
     margin: 0.25rem 0;
@@ -497,5 +563,20 @@ footer{grid-area: pie;}
 @media (min-width: 75em) {
     body {
         max-width: 1280px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .productos article,
+    .franja article {
+        animation: none;
+    }
+    article,
+    article img,
+    button {
+        transition: none;
+    }
+    .productos article:hover img {
+        transform: none;
     }
 }
