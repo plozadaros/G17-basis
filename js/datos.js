@@ -1,0 +1,58 @@
+export const productos = [
+  {
+    id: 1,
+    nombre: "MacBook Pro 14",
+    precio: 1999.99,
+    categoria: "laptops",
+    stock: 5,
+    destacado: true,
+    envio: { zona: "Lima", dias: 1 },
+  },
+  {
+    id: 2,
+    nombre: "iPhone 13 Pro",
+    precio: 1099.99,
+    categoria: "smartphones",
+    stock: 8,
+    destacado: false,
+    envio: { zona: "Lima", dias: 1 },
+  },
+  {
+    id: 3,
+    nombre: "iPad Mini 2021",
+    precio: 499.99,
+    categoria: "tablets",
+    stock: 0,
+    destacado: false,
+    envio: { zona: "Resto del Perú", dias: 4 },
+  },
+  {
+    id: 4,
+    nombre: "AirPods Max",
+    precio: 549.99,
+    categoria: "audio",
+    stock: 3,
+    destacado: false,
+    envio: { zona: "Resto del Perú", dias: 3 },
+  },
+  {
+    id: 5,
+    nombre: "MacBook Air 13",
+    precio: 1299.99,
+    categoria: "laptops",
+    stock: 4,
+    destacado: false,
+    envio: { zona: "Lima", dias: 2 },
+  },
+  {
+    id: 6,
+    nombre: "Magic Keyboard",
+    precio: 99.99,
+    categoria: "accesorios",
+    stock: 12,
+    destacado: false,
+    envio: { zona: "Internacional", dias: 12 },
+  },
+];
+
+export const agregarProducto = (items, producto) => [...items, producto];
