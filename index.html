@@ -1,266 +1,371 @@
-<!DOCTYPE html> <!--html v5-->
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>TechCart - Tienda electrónica</title>
-    <link rel="stylesheet" href="./css/styles.css">
-</head>
-<body>
-    <!-- ENCABEZADO -->
-    <header>
-        <h1>TechCart</h1>   
-        <nav aria-label="Principal">
-            <ul>
-                <li>
-                    <a href="#catalogo">
-                        Catalogo
-                    </a>
-                </li>
-                <li>
-                    <a href="#compra">
-                        Comprar
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <button class="carrito" type="button">
-            Comprar
-            <span class="contador">3</span>
-        </button>
-    </header>
-    <section class="promo">
-        <img src="img/macbook.webp" alt="Macbook Air abierta sobre un escritorio" width="120"/>
-        <div>
-            <h2>Semana de tecnologia</h2>
-            <p>Hasta 20 % de descuento en laptops seleccionadas, con envio gratis a Lima.</p>
-        </div>
-    </section>
-    <!-- CONTENIDO PRINCIPAL -->
-    <main>
-        <section id="catalogo">
-            <h2>Catalogo de productos</h2>
-            <nav class="categorias" aria-label="Categorias">
-                <ul>
-                    <li><a href="#catalogo">Laptops</a></li>
-                    <li><a href="#catalogo">Monitores</a></li>
-                    <li><a href="#catalogo">Teclados</a></li>
-                    <li><a href="#catalogo">Audio</a></li>
-                </ul>
-            </nav>
-            <div class="productos">
-                <article class="destacado">
-                    <figure>
-                        <img src="https://www.appleperu.pe/wp-content/uploads/macbook-pro-retina.jpg" alt="Macbook Pro 14 pulgadas gris espacial" width="200"/>
-                        <figcaption>Apple</figcaption>
-                    </figure>
-                    <h3>Macbook Pro 14"</h3>
-                    <p><strong>$1,999.99</strong></p>
-                    <button type="button">Agregar al carrito</button>
-                </article>
-                <article>
-                    <figure>
-                        <img src="https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcS1eCKck5yyiDW08v0Uuzc-LssM4iJC3ttkPCbGSW-JpuJpH_OtZoalXeRYyit1DX0tDM9PaF0aedQP_PSy8K1kUc2Un-b1pr0I8YTPaokJFTWsc5nwQYzluZwKWMaS0CKHa9SD7XUSLw&usqp=CAc" alt="Macbook Pro 14 pulgadas gris espacial" width="200"/>
-                        <figcaption>Apple</figcaption>
-                    </figure>
-                    <h3>Macbook Pro 14"</h3>
-                    <p><strong>$2,000.99</strong></p>
-                    <button type="button">Agregar al carrito</button>
-                </article>
-                <article>
-                    <figure>
-                        <img src="https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111902_mbp14-silver2.png" alt="Macbook Pro 14 pulgadas gris espacial" width="200"/>
-                        <figcaption>Apple</figcaption>
-                    </figure>
-                    <h3>Macbook Pro 14"</h3>
-                    <p><strong>$4,599.99</strong></p>
-                    <button type="button">Agregar al carrito</button>
-                </article>
-                <article>
-                    <figure>
-                        <img src="https://www.appleperu.pe/wp-content/uploads/1990-1.jpg" alt="Macbook Pro 14 pulgadas gris espacial" width="200"/>
-                        <figcaption>Apple</figcaption>
-                    </figure>
-                    <h3>Macbook Pro 14"</h3>
-                    <p><strong>$1,009.99</strong></p>
-                    <button type="button">Agregar al carrito</button>
-                </article>
-                <article>
-                    <figure>
-                        <img src="img/macbookpro14.jpg" alt="Macbook Pro 14 pulgadas plateada, vista desde arriba" width="200"/>
-                        <figcaption>Apple</figcaption>
-                    </figure>
-                    <h3>Macbook Pro 14" plata</h3>
-                    <p><strong>$1,799.99</strong></p>
-                    <button type="button">Agregar al carrito</button>
-                </article>
-            </div>
-        </section>
-        <section class="beneficios">
-            <h2>Por que comprar en TechCart</h2>
-            <div class="franja">
-                <article>
-                    <p class="icono">&#128666;</p>
-                    <h3>Envio gratis</h3>
-                    <p>En compras desde $50, a todo el pais.</p>
-                </article>
-                <article>
-                    <p class="icono">&#128737;</p>
-                    <h3>Garantia real</h3>
-                    <p>12 meses en todos los productos.</p>
-                </article>
-                <article>
-                    <p class="icono">&#128274;</p>
-                    <h3>Pago seguro</h3>
-                    <p>Tarjeta, PayPal o contra entrega.</p>
-                </article>
-                <article>
-                    <p class="icono">&#128295;</p>
-                    <h3>Servicio tecnico</h3>
-                    <p>Taller propio y repuestos originales.</p>
-                </article>
-            </div>
-        </section>
-        <section id="compra">
-            <h2>Finalizar compra</h2>
-            <form action="">
-                <fieldset class="envio">
-                    <legend>Datos de envio</legend>
-                    <p>
-                        <label for="nombre">Nombre completo</label><br/>
-                        <input type="text"  id="nombre" name="nombre" required minlength="3" autocomplete="name" placeholder="Nombre del usuario">
-                    </p>
-                    <p>
-                        <label for="email">Correo electronico</label><br/>
-                        <input type="email" id="email" name="email" required autocomplete="email">
-                    </p>
-                    <p>
-                        <label for="direccion">Direccion</label><br/>
-                        <input type="text" id="direccion" name="direccion" required minlength="5" autocomplete="address-line1">
-                    </p>
-                    <div class="fila">
-                    <p>
-                        <label for="ciudad">Ciudad</label><br/>
-                        <input type="text" id="ciudad" name="ciudad" list="ciudades" required autocomplete="address-level2">    
-                        <datalist id="ciudades">
-                            <option value="Lima"></option>
-                            <option value="Bogota"></option>
-                            <option value="Ciudade de Mexico"></option>
-                            <option value="Buenos Aires"></option>
-                            <option value="Madrid"></option>
-                        </datalist>
-                    </p>
-                    <p>
-                        <label for="pais">Pais</label><br/>
-                        <select name="pais" id="pais" required>
-                            <option value="">-Elige un pais-</option>
-                            <option value="pe">Peru</option>
-                            <option value="co">Colombia</option>
-                            <option value="mx">Mexico</option>
-                            <option value="ar">Argentina</option>
-                            <option value="es">Espana</option>
-                        </select>
-                    </p>
-                    </div>
-                    <div class="fila">
-                    <p>
-                        <label for="telefono">Telefono</label><br/>
-                        <input type="tel" id="telefono" pattern="[0-9]{7,}" title="Solo numeros, al menos 7 digitos" autocomplete="tel">
-                    </p>
-                    <p>
-                        <label for="fecha">Fecha de entrega deseada</label><br/>
-                        <input type="date" id="fecha" name="fecha">
-                    </p>
-                    </div>
-                    <p>
-                        <label for="cantidad">Cantidad de unidades</label>
-                        <input type="number" id="cantidad" name="cantidad" min="1" max="10" step="1" value="1" required>
-                    </p>
-                    <p class="campo-ancho">
-                        <label for="notas">Notas para el repartidor (opcinal)</label>
-                        <textarea name="notas" id="notas" rows="5" maxlength="200"></textarea>
-                    </p>
-                </fieldset>
-                <fieldset>
-                    <legend>Metodo de pago</legend>
-                    <p>
-                        <input type="radio" id="pago-tarjeta" name="pago" value="tarjeta" required>
-                        <label for="pago-tarjeta">Tarjeta</label>
-                    </p>
-                    <p>
-                        <input type="radio" id="pago-paypal" name="pago" value="paypal">
-                        <label for="pago-paypal">PayPal</label>
-                    </p>
-                    <p>
-                        <input type="radio" id="pago-contra" name="pago" value="contraentrega">
-                        <label for="pago-contra">Contra entrega</label>
-                    </p>
-                </fieldset>
-                <p>
-                    <input type="checkbox" id="terminos" name="terminos" required>
-                    <label for="terminos">Acepto terminos y condiciones</label>
-                </p>
-                <button type="submit">Confirmar pedido</button>
-            </form>
-        </section>
-    </main>
-    <aside>
-            <h2>Informacion de la compra</h2>
-            <h3>Como comprar en tres pasos</h3>
-            <ol>
-                <li>Elige un producto del catalogo.</li>
-                <li>Agregalo al carrito</li>
-                <li>Confirma tu pedido con tus datos de envio</li>
-            </ol>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechCart — Tienda de electrónica</title>
 
-            <h3>Costos de envio</h3>
-            <table>
-                <caption>Tarifas por zona</caption>
-                <thead>
-                    <tr>
-                        <th>Zona</th>
-                        <th>Tiempo</th>
-                        <th>Costo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Lima</td>
-                        <td>24 horas</td>
-                        <td>Gratis</td>
-                    </tr>
-                    <tr>
-                        <td>Resto del Peru</td>
-                        <td>3 a 5 dias</td>
-                        <td>$9.90</td>
-                    </tr>
-                    <tr>
-                        <td>Internacional</td>
-                        <td>7 a 15 dias</td>
-                        <td>$29.90</td>
-                    </tr>
-                </tbody>
-            </table>
-    </aside>
-    <!-- Footer -->
-    <footer>
-        <div class="marca">
-            <h2>TechCart</h2>
-            <p>&copy; 2026 TechCart - Proyecto educativo</p>
-        </div>
-        <div class="enlaces">
-            <h2>Enlaces</h2>
-            <ul>
-                <li><a href="#catalogo">Catalogo</a></li>
-                <li><a href="#compra">Comprar</a></li>
-                <li><a href="https://dummyjson.com" target="_blank" rel="noopener">Datos e imagenes de DummyJson</a></li>
-            </ul>
-        </div>
-        <div class="contacto">
-            <h2>Contacto</h2>
-            <address>Contacto: <a href="mailto:edwardhc1997@gmail.com">edwardhc1997@gmail.com</a></address>
-            <p>Lunes a sabado, 10:00 a 20:00</p>
-        </div>
-    </footer>
+  <link rel="stylesheet" href="./css/styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script defer src="./js/main.js"></script>
+  <style type="text/tailwindcss">
+
+    @theme {
+
+      --color-marca:        #0066cc;
+      --color-sobre-marca:  #fff;
+      --color-exito:        hsl(146 85% 26%);
+      --color-error:        #c0392b;
+      --color-fondo:        #f5f5f7;
+      --color-fondo-suave:  #e5e5ea;
+      --color-tarjeta:      #fff;
+      --color-resalte:      #e8f1fb;
+      --color-texto:        #1d1d1f;
+      --color-texto-suave:  #6e6e73;
+      --color-borde:        #d2d2d7;
+
+      --radius-tarjeta: 12px;
+
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+      --text-seccion: clamp(1.25rem, 1rem + 1.2vw, 1.5rem);
+
+      --animate-aparecer: aparecer 0.5s ease-out backwards;
+      --animate-latido:   latido 1.6s ease-in-out infinite alternate;
+
+      --breakpoint-monitor: 75rem;
+
+      --container-pagina: 1100px;
+      --container-ancha:  1280px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-marca:        #3d9bff;
+        --color-sobre-marca:  #0b1220;
+        --color-exito:        #30d158;
+        --color-error:        #ff6b5e;
+        --color-fondo:        #111114;
+        --color-fondo-suave:  #2c2c2e;
+        --color-tarjeta:      #1d1d1f;
+        --color-resalte:      #0e2439;
+        --color-texto:        #f5f5f7;
+        --color-texto-suave:  #a1a1a6;
+        --color-borde:        #3a3a3c;
+      }
+    }
+
+    @layer components {
+
+      .tarjeta {
+        @apply bg-tarjeta border border-borde rounded-tarjeta p-4;
+      }
+
+      .boton {
+        @apply bg-marca text-sobre-marca cursor-pointer rounded-full px-[1.2em] py-[0.6em]
+               transition-[transform,filter] duration-150
+               hover:brightness-110 hover:-translate-y-px
+               focus-visible:brightness-110 focus-visible:-translate-y-px
+               active:translate-y-0 active:scale-95
+               focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2
+               motion-reduce:transition-none;
+      }
+
+      .campo {
+        @apply basis-full min-w-0 px-3 py-2 border border-borde rounded-lg
+               bg-fondo text-texto
+               placeholder:text-texto-suave placeholder:italic
+               user-invalid:border-error
+               focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2;
+      }
+
+      .titulo-seccion {
+        @apply text-seccion leading-tight
+               after:content-[''] after:block after:w-12 after:h-[3px]
+               after:bg-marca after:mt-1;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-fondo text-texto max-w-pagina monitor:max-w-ancha mx-auto p-4 lg:p-5 monitor:p-7">
+
+  <header class="flex flex-col items-start gap-4 bg-tarjeta rounded-tarjeta py-4 px-5
+                 md:flex-row md:justify-between md:items-center">
+
+    <h1 class="flex items-center justify-center w-35 h-11 bg-marca text-sobre-marca rounded-lg text-xl">TechCart</h1>
+
+    <nav aria-label="Principal">
+
+      <ul class="flex gap-5">
+        <li><a class="text-marca font-semibold no-underline hover:underline" href="#catalogo">Catálogo</a></li>
+        <li><a class="text-marca font-semibold no-underline hover:underline" href="#compra">Comprar</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="grid grid-cols-[repeat(auto-fit,minmax(min(150px,100%),1fr))] gap-4 mb-6"
+             aria-label="Beneficios de la tienda">
+      <article class="tarjeta text-center">
+        <p class="text-3xl mb-1" aria-hidden="true">🚚</p>
+        <h3 class="text-base leading-tight mb-1">Envío gratis</h3>
+        <p class="text-sm text-texto-suave">En compras desde $50, a todo el país.</p>
+      </article>
+      <article class="tarjeta text-center">
+        <p class="text-3xl mb-1" aria-hidden="true">🛡️</p>
+        <h3 class="text-base leading-tight mb-1">Garantía real</h3>
+        <p class="text-sm text-texto-suave">12 meses en todos los productos.</p>
+      </article>
+      <article class="tarjeta text-center">
+        <p class="text-3xl mb-1" aria-hidden="true">🔒</p>
+        <h3 class="text-base leading-tight mb-1">Pago seguro</h3>
+        <p class="text-sm text-texto-suave">Tarjeta, PayPal o contra entrega.</p>
+      </article>
+    </section>
+
+    <section id="catalogo">
+      <h2 class="titulo-seccion">Catálogo de productos</h2>
+
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-y-6 gap-x-4 md:auto-rows-fr">
+
+        <article class="tarjeta group flex flex-col justify-center text-center
+                        bg-resalte border-marca border-2 md:col-span-2 md:row-span-2
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        before:content-['Destacado'] before:inline-block before:self-center
+                        before:text-marca before:text-xs before:font-bold before:uppercase
+                        before:tracking-wider before:border before:border-marca
+                        before:rounded-full before:px-2.5 before:py-0.5 before:mb-2
+                        before:animate-latido motion-reduce:before:animate-none">
+          <figure class="mb-3">
+
+            <img class="w-full max-w-75 aspect-square object-contain dark:brightness-90"
+                 src="https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/thumbnail.webp"
+                 alt="MacBook Pro 14 pulgadas gris espacial" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">MacBook Pro 14"</h3>
+          <p class="mb-3"><strong class="text-exito">$1,999.99</strong></p>
+
+          <button class="boton self-center mt-4" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none">
+          <figure class="mb-3">
+            <img class="aspect-square object-contain dark:brightness-90"
+                 src="https://cdn.dummyjson.com/product-images/smartphones/iphone-13-pro/thumbnail.webp"
+                 alt="iPhone 13 Pro" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">iPhone 13 Pro</h3>
+          <p class="mb-3"><strong class="text-exito">$1,099.99</strong></p>
+
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none">
+          <figure class="mb-3">
+            <img class="aspect-square object-contain dark:brightness-90"
+                 src="https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/thumbnail.webp"
+                 alt="iPad Mini 2021" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">iPad Mini 2021</h3>
+          <p class="mb-3"><strong class="text-exito">$499.99</strong></p>
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none">
+          <figure class="mb-3">
+            <img class="aspect-square object-contain dark:brightness-90"
+                 src="https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/thumbnail.webp"
+                 alt="AirPods Max plateados" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">AirPods Max</h3>
+          <p class="mb-3"><strong class="text-exito">$549.99</strong></p>
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+      </div>
+
+    </section>
+
+    <section id="compra" class="bg-tarjeta rounded-tarjeta p-6 mt-6">
+      <h2 class="titulo-seccion">Finalizar compra</h2>
+
+      <form>
+
+        <fieldset class="border border-borde rounded-lg p-4 mb-4 grid grid-cols-1 gap-x-4 md:grid-cols-2">
+          <legend class="font-semibold px-1.5">Datos de envío</legend>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="nombre">Nombre completo</label>
+            <input class="campo" type="text" id="nombre" name="nombre" required minlength="3"
+                   placeholder="Ej.: Ana Pérez" autocomplete="name" />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="email">Correo electrónico</label>
+            <input class="campo" type="email" id="email" name="email" required autocomplete="email" />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="direccion">Dirección</label>
+            <input class="campo" type="text" id="direccion" name="direccion" required minlength="5"
+                   autocomplete="address-line1" />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="ciudad">Ciudad</label>
+            <input class="campo" type="text" id="ciudad" name="ciudad" list="ciudades" required
+                   autocomplete="address-level2" />
+            <datalist id="ciudades">
+              <option value="Lima"></option>
+              <option value="Bogotá"></option>
+              <option value="Ciudad de México"></option>
+              <option value="Buenos Aires"></option>
+              <option value="Madrid"></option>
+            </datalist>
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="pais">País</label>
+            <select class="campo" id="pais" name="pais" required>
+              <option value="">— Elige un país —</option>
+              <option value="pe">Perú</option>
+              <option value="co">Colombia</option>
+              <option value="mx">México</option>
+              <option value="ar">Argentina</option>
+              <option value="es">España</option>
+            </select>
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="telefono">Teléfono</label>
+            <input class="campo" type="tel" id="telefono" name="telefono" required pattern="[0-9]{7,}"
+                   title="Solo números, al menos 7 dígitos" autocomplete="tel" />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="fecha">Fecha de entrega deseada</label>
+            <input class="campo" type="date" id="fecha" name="fecha" />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <label class="basis-full" for="cantidad">Cantidad de unidades</label>
+            <input class="campo" type="number" id="cantidad" name="cantidad" min="1" max="10" step="1"
+                   value="1" required />
+          </p>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0 col-span-full">
+            <label class="basis-full" for="notas">Notas para el repartidor (opcional)</label>
+            <textarea class="campo" id="notas" name="notas" rows="3" maxlength="200"></textarea>
+          </p>
+        </fieldset>
+
+        <fieldset class="border border-borde rounded-lg p-4 mb-4">
+          <legend class="font-semibold px-1.5">Método de pago</legend>
+
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <input class="shrink-0 focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2"
+                   type="radio" id="pago-tarjeta" name="pago" value="tarjeta" required />
+            <label for="pago-tarjeta">Tarjeta</label>
+          </p>
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <input class="shrink-0 focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2"
+                   type="radio" id="pago-paypal" name="pago" value="paypal" />
+            <label for="pago-paypal">PayPal</label>
+          </p>
+          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+            <input class="shrink-0 focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2"
+                   type="radio" id="pago-contra" name="pago" value="contraentrega" />
+            <label for="pago-contra">Contra entrega</label>
+          </p>
+        </fieldset>
+
+        <p class="flex flex-wrap items-center gap-2 my-3">
+          <input class="shrink-0 focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2"
+                 type="checkbox" id="terminos" name="terminos" required />
+          <label for="terminos">Acepto los términos y condiciones</label>
+        </p>
+
+        <button class="boton bg-exito text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit">Confirmar pedido</button>
+      </form>
+    </section>
+
+  </main>
+
+  <aside class="flex flex-col items-stretch gap-2 bg-tarjeta border border-borde rounded-tarjeta p-6 overflow-x-auto">
+    <h2 class="titulo-seccion">Información de compra</h2>
+
+    <h3 class="text-lg leading-tight mt-4">Cómo comprar en tres pasos</h3>
+
+    <ol class="list-decimal pl-6">
+      <li>Elige un producto del catálogo.</li>
+      <li>Agrégalo al carrito.</li>
+      <li>Confirma tu pedido con tus datos de envío.</li>
+    </ol>
+
+    <h3 class="text-lg leading-tight mt-4">Costos de envío</h3>
+    <table class="w-full border-collapse text-sm">
+      <caption class="font-semibold text-left mb-2">Tarifas por zona</caption>
+      <thead>
+        <tr>
+          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Zona</th>
+          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Tiempo</th>
+          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Costo</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="even:bg-fondo hover:bg-resalte">
+          <td class="border border-borde px-2 py-1.5">Lima</td>
+          <td class="border border-borde px-2 py-1.5">24 horas</td>
+          <td class="border border-borde px-2 py-1.5">Gratis</td>
+        </tr>
+        <tr class="even:bg-fondo hover:bg-resalte">
+          <td class="border border-borde px-2 py-1.5">Resto del Perú</td>
+          <td class="border border-borde px-2 py-1.5">3 a 5 días</td>
+          <td class="border border-borde px-2 py-1.5">$9.90</td>
+        </tr>
+        <tr class="even:bg-fondo hover:bg-resalte">
+          <td class="border border-borde px-2 py-1.5">Internacional</td>
+          <td class="border border-borde px-2 py-1.5">7 a 15 días</td>
+          <td class="border border-borde px-2 py-1.5">$29.90</td>
+        </tr>
+      </tbody>
+    </table>
+  </aside>
+
+  <footer class="flex flex-wrap items-center gap-4 py-6 border-t border-borde text-texto-suave text-sm">
+    <p>&copy; 2026 TechCart · Proyecto educativo</p>
+    <p>Datos e imágenes de
+      <a class="text-marca after:content-['↗'] after:ml-1"
+         href="https://dummyjson.com" target="_blank" rel="noopener">DummyJSON</a></p>
+
+    <address class="order-first mr-auto not-italic">Contacto:
+      <a class="text-marca" href="mailto:hola@techcart.com">hola@techcart.com</a></address>
+  </footer>
+
 </body>
 </html>
