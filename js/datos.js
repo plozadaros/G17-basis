@@ -37,7 +37,7 @@ export const productos = [
   },
   {
     id: 5,
-    nombre: "MacBook Air 13",
+    nombre: "Lenovo Yoga 920",
     precio: 1299.99,
     categoria: "laptops",
     stock: 4,
@@ -46,7 +46,7 @@ export const productos = [
   },
   {
     id: 6,
-    nombre: "Magic Keyboard",
+    nombre: "Apple MagSafe Battery Pack",
     precio: 99.99,
     categoria: "accesorios",
     stock: 12,

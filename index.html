@@ -25,8 +25,11 @@
       --color-texto:        #1d1d1f;
       --color-texto-suave:  #6e6e73;
       --color-borde:        #d2d2d7;
+      --color-oferta:       #b45309;
 
       --radius-tarjeta: 12px;
+
+      --shadow-tarjeta: 0 12px 24px rgb(0 0 0 / 0.15);
 
       --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -54,6 +57,9 @@
         --color-texto:        #f5f5f7;
         --color-texto-suave:  #a1a1a6;
         --color-borde:        #3a3a3c;
+        --color-oferta:       #fbbf24;
+
+        --shadow-tarjeta: 0 16px 32px rgb(0 0 0 / 0.7);
       }
     }
 
@@ -81,6 +87,10 @@
                focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2;
       }
 
+      .celda {
+        @apply border border-borde px-2 py-1.5 text-left;
+      }
+
       .titulo-seccion {
         @apply text-seccion leading-tight
                after:content-[''] after:block after:w-12 after:h-[3px]
@@ -92,7 +102,7 @@
 
 <body class="bg-fondo text-texto max-w-pagina monitor:max-w-ancha mx-auto p-4 lg:p-5 monitor:p-7">
 
-  <header class="flex flex-col items-start gap-4 bg-tarjeta rounded-tarjeta py-4 px-5
+  <header class="sticky top-0 z-10 flex flex-col items-start gap-4 bg-tarjeta rounded-tarjeta py-4 px-5
                  md:flex-row md:justify-between md:items-center">
 
     <h1 class="flex items-center justify-center w-35 h-11 bg-marca text-sobre-marca rounded-lg text-xl">TechCart</h1>
@@ -104,7 +114,23 @@
         <li><a class="text-marca font-semibold no-underline hover:underline" href="#compra">Comprar</a></li>
       </ul>
     </nav>
+
+    <button class="boton inline-flex items-center gap-2.5" type="button">
+      Comprar
+      <span class="flex items-center justify-center w-[22px] h-[22px] rounded-full
+                   bg-sobre-marca text-marca text-xs font-bold">3</span>
+    </button>
   </header>
+
+  <section class="promo flex flex-wrap items-center gap-4 bg-tarjeta border border-borde
+                  border-l-[5px] border-l-marca rounded-tarjeta py-4 px-5">
+    <img class="w-30 rounded-lg" src="img/macbook.webp"
+         alt="MacBook Air abierta sobre un escritorio" width="120" />
+    <div>
+      <h2 class="titulo-seccion">Semana de tecnología</h2>
+      <p class="mt-1">Hasta 20 % de descuento en laptops seleccionadas, con envío gratis a Lima.</p>
+    </div>
+  </section>
 
   <main>
 
@@ -125,17 +151,31 @@
         <h3 class="text-base leading-tight mb-1">Pago seguro</h3>
         <p class="text-sm text-texto-suave">Tarjeta, PayPal o contra entrega.</p>
       </article>
+      <article class="tarjeta text-center">
+        <p class="text-3xl mb-1" aria-hidden="true">🔧</p>
+        <h3 class="text-base leading-tight mb-1">Servicio técnico</h3>
+        <p class="text-sm text-texto-suave">Taller propio y repuestos originales.</p>
+      </article>
     </section>
 
     <section id="catalogo">
       <h2 class="titulo-seccion">Catálogo de productos</h2>
 
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-y-6 gap-x-4 md:auto-rows-fr">
+      <nav class="my-4" aria-label="Categorías">
+        <ul class="flex flex-wrap justify-center gap-3">
+          <li><a class="inline-block border border-borde rounded-full px-4 py-1 text-marca font-semibold no-underline hover:bg-resalte" href="#catalogo">Laptops</a></li>
+          <li><a class="inline-block border border-borde rounded-full px-4 py-1 text-marca font-semibold no-underline hover:bg-resalte" href="#catalogo">Smartphones</a></li>
+          <li><a class="inline-block border border-borde rounded-full px-4 py-1 text-marca font-semibold no-underline hover:bg-resalte" href="#catalogo">Audio</a></li>
+          <li><a class="inline-block border border-borde rounded-full px-4 py-1 text-marca font-semibold no-underline hover:bg-resalte" href="#catalogo">Accesorios</a></li>
+        </ul>
+      </nav>
+
+      <div class="grid grid-flow-dense grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-y-6 gap-x-4 md:auto-rows-fr">
 
         <article class="tarjeta group flex flex-col justify-center text-center
                         bg-resalte border-marca border-2 md:col-span-2 md:row-span-2
                         transition-[transform,box-shadow] duration-200
-                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
                         animate-aparecer
                         motion-reduce:transition-none motion-reduce:animate-none
                         before:content-['Destacado'] before:inline-block before:self-center
@@ -143,43 +183,53 @@
                         before:tracking-wider before:border before:border-marca
                         before:rounded-full before:px-2.5 before:py-0.5 before:mb-2
                         before:animate-latido motion-reduce:before:animate-none">
-          <figure class="mb-3">
-
-            <img class="w-full max-w-75 aspect-square object-contain dark:brightness-90"
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="w-full max-w-75 aspect-square object-contain dark:brightness-90
+                        transition-transform duration-300 group-hover:scale-105
+                        motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                  src="https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/thumbnail.webp"
                  alt="MacBook Pro 14 pulgadas gris espacial" width="200" />
             <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
           </figure>
           <h3 class="text-lg leading-tight my-1 group-hover:text-marca">MacBook Pro 14"</h3>
           <p class="mb-3"><strong class="text-exito">$1,999.99</strong></p>
-
           <button class="boton self-center mt-4" type="button">Agregar al carrito</button>
         </article>
 
         <article class="tarjeta group flex flex-col text-center
                         transition-[transform,box-shadow] duration-200
-                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
                         animate-aparecer
-                        motion-reduce:transition-none motion-reduce:animate-none">
-          <figure class="mb-3">
-            <img class="aspect-square object-contain dark:brightness-90"
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        md:col-span-2
+                        [animation-delay:100ms]">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                  src="https://cdn.dummyjson.com/product-images/smartphones/iphone-13-pro/thumbnail.webp"
                  alt="iPhone 13 Pro" width="200" />
             <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
           </figure>
           <h3 class="text-lg leading-tight my-1 group-hover:text-marca">iPhone 13 Pro</h3>
           <p class="mb-3"><strong class="text-exito">$1,099.99</strong></p>
-
           <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
         </article>
 
         <article class="tarjeta group flex flex-col text-center
                         transition-[transform,box-shadow] duration-200
-                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
                         animate-aparecer
-                        motion-reduce:transition-none motion-reduce:animate-none">
-          <figure class="mb-3">
-            <img class="aspect-square object-contain dark:brightness-90"
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        [animation-delay:200ms]
+                        before:content-['Oferta'] before:inline-block before:self-center
+                        before:bg-oferta before:text-white before:text-xs before:font-bold
+                        before:uppercase before:tracking-wider before:rounded-full
+                        before:px-2.5 before:py-0.5 before:mb-2">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                  src="https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/thumbnail.webp"
                  alt="iPad Mini 2021" width="200" />
             <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
@@ -191,17 +241,77 @@
 
         <article class="tarjeta group flex flex-col text-center
                         transition-[transform,box-shadow] duration-200
-                        hover:-translate-y-1 hover:shadow-lg dark:hover:ring-1 dark:hover:ring-marca
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
                         animate-aparecer
-                        motion-reduce:transition-none motion-reduce:animate-none">
-          <figure class="mb-3">
-            <img class="aspect-square object-contain dark:brightness-90"
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        [animation-delay:300ms]">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                  src="https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/thumbnail.webp"
-                 alt="AirPods Max plateados" width="200" />
+                 alt="AirPods Max" width="200" />
             <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
           </figure>
           <h3 class="text-lg leading-tight my-1 group-hover:text-marca">AirPods Max</h3>
           <p class="mb-3"><strong class="text-exito">$549.99</strong></p>
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        [animation-delay:400ms]">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                 src="https://cdn.dummyjson.com/product-images/laptops/lenovo-yoga-920/thumbnail.webp"
+                 alt="Lenovo Yoga 920" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Lenovo</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">Lenovo Yoga 920</h3>
+          <p class="mb-3"><strong class="text-exito">$1,299.99</strong></p>
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        [animation-delay:500ms]">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                 src="https://cdn.dummyjson.com/product-images/mobile-accessories/apple-magsafe-battery-pack/thumbnail.webp"
+                 alt="Apple MagSafe Battery Pack" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">Apple MagSafe Battery Pack</h3>
+          <p class="mb-3"><strong class="text-exito">$99.99</strong></p>
+          <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
+        </article>
+
+        <article class="tarjeta group flex flex-col text-center
+                        transition-[transform,box-shadow] duration-200
+                        hover:-translate-y-1 hover:shadow-tarjeta dark:hover:ring-1 dark:hover:ring-marca
+                        animate-aparecer
+                        motion-reduce:transition-none motion-reduce:animate-none
+                        [animation-delay:600ms]">
+          <figure class="mb-3 overflow-hidden rounded-lg">
+            <img class="aspect-square object-contain dark:brightness-90
+                      transition-transform duration-300 group-hover:scale-105
+                      motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                 src="https://cdn.dummyjson.com/product-images/mobile-accessories/apple-watch-series-4-gold/thumbnail.webp"
+                 alt="Apple Watch Series 4" width="200" />
+            <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">Apple</figcaption>
+          </figure>
+          <h3 class="text-lg leading-tight my-1 group-hover:text-marca">Apple Watch Series 4</h3>
+          <p class="mb-3"><strong class="text-exito">$429.99</strong></p>
           <button class="boton self-center mt-auto" type="button">Agregar al carrito</button>
         </article>
 
@@ -212,9 +322,9 @@
     <section id="compra" class="bg-tarjeta rounded-tarjeta p-6 mt-6">
       <h2 class="titulo-seccion">Finalizar compra</h2>
 
-      <form>
+      <form class="grid grid-cols-1 gap-x-5 lg:grid-cols-[2fr_1fr]">
 
-        <fieldset class="border border-borde rounded-lg p-4 mb-4 grid grid-cols-1 gap-x-4 md:grid-cols-2">
+        <fieldset class="border border-borde rounded-lg p-4 mb-4 grid grid-cols-1 gap-x-4 md:grid-cols-2 lg:row-span-2">
           <legend class="font-semibold px-1.5">Datos de envío</legend>
 
           <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
@@ -234,7 +344,8 @@
                    autocomplete="address-line1" />
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <div class="fila col-span-full flex flex-wrap gap-x-4">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="ciudad">Ciudad</label>
             <input class="campo" type="text" id="ciudad" name="ciudad" list="ciudades" required
                    autocomplete="address-level2" />
@@ -247,7 +358,7 @@
             </datalist>
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="pais">País</label>
             <select class="campo" id="pais" name="pais" required>
               <option value="">— Elige un país —</option>
@@ -258,17 +369,20 @@
               <option value="es">España</option>
             </select>
           </p>
+          </div>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <div class="fila col-span-full flex flex-wrap gap-x-4">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="telefono">Teléfono</label>
             <input class="campo" type="tel" id="telefono" name="telefono" required pattern="[0-9]{7,}"
                    title="Solo números, al menos 7 dígitos" autocomplete="tel" />
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="fecha">Fecha de entrega deseada</label>
             <input class="campo" type="date" id="fecha" name="fecha" />
           </p>
+          </div>
 
           <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
             <label class="basis-full" for="cantidad">Cantidad de unidades</label>
@@ -308,7 +422,8 @@
           <label for="terminos">Acepto los términos y condiciones</label>
         </p>
 
-        <button class="boton bg-exito text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        <button class="boton bg-exito text-lg col-span-full justify-self-start
+                       disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit">Confirmar pedido</button>
       </form>
     </section>
@@ -331,40 +446,55 @@
       <caption class="font-semibold text-left mb-2">Tarifas por zona</caption>
       <thead>
         <tr>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Zona</th>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Tiempo</th>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Costo</th>
+          <th class="celda bg-fondo-suave">Zona</th>
+          <th class="celda bg-fondo-suave">Tiempo</th>
+          <th class="celda bg-fondo-suave">Costo</th>
         </tr>
       </thead>
       <tbody>
 
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Lima</td>
-          <td class="border border-borde px-2 py-1.5">24 horas</td>
-          <td class="border border-borde px-2 py-1.5">Gratis</td>
+          <td class="celda">Lima</td>
+          <td class="celda">24 horas</td>
+          <td class="celda">Gratis</td>
         </tr>
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Resto del Perú</td>
-          <td class="border border-borde px-2 py-1.5">3 a 5 días</td>
-          <td class="border border-borde px-2 py-1.5">$9.90</td>
+          <td class="celda">Resto del Perú</td>
+          <td class="celda">3 a 5 días</td>
+          <td class="celda">$9.90</td>
         </tr>
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Internacional</td>
-          <td class="border border-borde px-2 py-1.5">7 a 15 días</td>
-          <td class="border border-borde px-2 py-1.5">$29.90</td>
+          <td class="celda">Internacional</td>
+          <td class="celda">7 a 15 días</td>
+          <td class="celda">$29.90</td>
         </tr>
       </tbody>
     </table>
   </aside>
 
-  <footer class="flex flex-wrap items-center gap-4 py-6 border-t border-borde text-texto-suave text-sm">
-    <p>&copy; 2026 TechCart · Proyecto educativo</p>
-    <p>Datos e imágenes de
-      <a class="text-marca after:content-['↗'] after:ml-1"
-         href="https://dummyjson.com" target="_blank" rel="noopener">DummyJSON</a></p>
+  <footer class="grid grid-cols-1 gap-6 py-6 border-t border-borde text-texto-suave text-sm md:grid-cols-3">
+    <div>
+      <h2 class="text-base text-texto mb-2">TechCart</h2>
+      <p>&copy; 2026 TechCart · Proyecto educativo</p>
+    </div>
 
-    <address class="order-first mr-auto not-italic">Contacto:
-      <a class="text-marca" href="mailto:hola@techcart.com">hola@techcart.com</a></address>
+    <div>
+      <h2 class="text-base text-texto mb-2">Enlaces</h2>
+      <ul>
+        <li><a class="text-marca" href="#catalogo">Catálogo</a></li>
+        <li><a class="text-marca" href="#compra">Comprar</a></li>
+        <li><a class="text-marca after:content-['↗'] after:ml-1"
+               href="https://dummyjson.com" target="_blank" rel="noopener">Datos e imágenes de DummyJSON</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="text-base text-texto mb-2">Contacto</h2>
+      <address class="not-italic">
+        <a class="text-marca" href="mailto:hola@techcart.com">hola@techcart.com</a>
+      </address>
+      <p>Lunes a sábado, 10:00 a 20:00</p>
+    </div>
   </footer>
 
 </body>

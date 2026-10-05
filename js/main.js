@@ -17,7 +17,7 @@ import { tarifaPorZona, costoDeEnvio } from "./envio.js";
 
 const appleWatch = {
   id: 7,
-  nombre: "Apple Watch Series 9",
+  nombre: "Apple Watch Series 4",
   precio: 429.99,
   categoria: "wearables",
   stock: 6,
@@ -60,7 +60,7 @@ console.log("Envío de un carrito de $20 a Internacional:", formatearPrecio(cost
 console.log("Envío de un carrito de $120 a Internacional:", formatearPrecio(costoDeEnvio(120, "Internacional")));
 
 const carrito = [
-  { nombre: "Magic Keyboard", precio: 99.99, cantidad: 1 },
+  { nombre: "Apple MagSafe Battery Pack", precio: 99.99, cantidad: 1 },
   { nombre: "AirPods Max", precio: 549.99, cantidad: 2 },
 ];
 
