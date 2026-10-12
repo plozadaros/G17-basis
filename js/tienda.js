@@ -1,20 +1,25 @@
+import { TODAS } from "./datos.js";
+
 export const IGV = 0.18;
 export const ENVIO_GRATIS_DESDE = 5000;
 
 export const precioConIgv = (precio) => precio * (1 + IGV);
 
 export function tarifaPorZona(zona) {
-    switch(zona) {
-        case "Lima" : 
+    switch (zona) {
+        case "Lima":
             return 0;
         case "Resto del Peru":
             return 9.99;
         case "Internacional":
-            return 29.9
-        default : 
+            return 29.9;
+        default:
             return 9.99;
     }
 }
+
+export const filtrarPorCategoria = (items, categoria) =>
+    categoria === TODAS ? items : items.filter((producto) => producto.categoria === categoria);
 
 export const buscar = (items, texto) => items.filter(({nombre}) => nombre.toLowerCase().includes(texto.toLowerCase()));
 export const masCaro = (items) => items.reduce((mayor, p) => (p.precio > mayor.precio ? p : mayor), items[0]);
@@ -33,7 +38,7 @@ export const resumenTienda = (items) => {
     const { nombre : masCaroDe } = masCaro(items);
     return {
         productos : items.length,
-        disponibles : disponibles.length, 
+        disponibles : disponibles.length,
         agotados,
         valorCatalogo,
         valorInventario,

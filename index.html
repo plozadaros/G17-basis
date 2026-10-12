@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TechCart — Tienda de electrónica</title>
 
+  <script>
+    try {
+      const guardado = localStorage.getItem("techcart_tema");
+      const oscuro = guardado
+        ? guardado === "oscuro"
+        : matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", oscuro);
+    } catch (error) {
+      document.documentElement.classList.toggle("dark", matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+  </script>
+
   <link rel="stylesheet" href="./css/styles.css" />
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -44,23 +56,23 @@
       --container-ancha:  1280px;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-marca:        #3d9bff;
-        --color-sobre-marca:  #0b1220;
-        --color-exito:        #30d158;
-        --color-error:        #ff6b5e;
-        --color-fondo:        #111114;
-        --color-fondo-suave:  #2c2c2e;
-        --color-tarjeta:      #1d1d1f;
-        --color-resalte:      #0e2439;
-        --color-texto:        #f5f5f7;
-        --color-texto-suave:  #a1a1a6;
-        --color-borde:        #3a3a3c;
-        --color-oferta:       #fbbf24;
+    @custom-variant dark (&:where(.dark, .dark *));
 
-        --shadow-tarjeta: 0 16px 32px rgb(0 0 0 / 0.7);
-      }
+    :root.dark {
+      --color-marca:        #3d9bff;
+      --color-sobre-marca:  #0b1220;
+      --color-exito:        #30d158;
+      --color-error:        #ff6b5e;
+      --color-fondo:        #111114;
+      --color-fondo-suave:  #2c2c2e;
+      --color-tarjeta:      #1d1d1f;
+      --color-resalte:      #0e2439;
+      --color-texto:        #f5f5f7;
+      --color-texto-suave:  #a1a1a6;
+      --color-borde:        #3a3a3c;
+      --color-oferta:       #fbbf24;
+
+      --shadow-tarjeta: 0 16px 32px rgb(0 0 0 / 0.7);
     }
 
     @layer components {
@@ -116,12 +128,16 @@
     </nav>
     <p id="resumen-carrito" class="font-semibold m-0" role="status" aria-live="polite"></p>
 
-    <a class="boton inline-flex items-center gap-2.5 no-underline" href="#carrito">
-      Comprar
-      <span id="contador-carrito"
-            class="flex items-center justify-center w-[22px] h-[22px] rounded-full
-                   bg-sobre-marca text-marca text-xs font-bold">0</span>
-    </a>
+    <div class="flex flex-wrap items-center gap-3">
+      <a class="boton inline-flex items-center gap-2.5 no-underline" href="#carrito">
+        Comprar
+        <span id="contador-carrito"
+              class="flex items-center justify-center w-[22px] h-[22px] rounded-full
+                     bg-sobre-marca text-marca text-xs font-bold">0</span>
+      </a>
+
+      <button id="tema" class="boton" type="button" aria-pressed="false">Modo oscuro</button>
+    </div>
   </header>
 
   <section class="promo flex flex-wrap items-center gap-4 bg-tarjeta border border-borde
@@ -162,7 +178,10 @@
 
     <section id="catalogo">
       <h2 class="titulo-seccion">Catálogo de productos</h2>
-      <div id="estado-catalogo" role ="status" aria-live="polite"></div>
+
+      <nav id="filtros" class="flex flex-wrap justify-center gap-3 my-4" aria-label="Categorías"></nav>
+
+      <div id="estado-catalogo" role="status" aria-live="polite"></div>
       <div id="catalogo-grid" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-y-6 gap-x-4 md:auto-rows-fr">
       </div>
 

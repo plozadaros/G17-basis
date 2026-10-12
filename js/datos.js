@@ -1,4 +1,13 @@
-export const categorias = ["laptops", "smartphones", "tablets", "mobile-accesories"];
+export const TODAS = "todas";
+
+export const categorias = ["laptops", "smartphones", "tablets", "mobile-accessories"];
+
+export const etiquetaCategoria = {
+    laptops: "Laptops",
+    smartphones: "Teléfonos",
+    tablets: "Tablets",
+    "mobile-accessories": "Accesorios",
+};
 export const productos = [
     {id: 1, nombre: "Macbook Pro 14", marca: "Apple", precio: 1999.99, categoria: "laptops", stock: 5, destacado: true, 
         envio : {zona: "Lima", dias : 1}, 
@@ -15,7 +24,7 @@ export const productos = [
         imagen : "https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/thumbnail.webp",
                  alt : "iPad Mini 2021" 
     },
-    {id: 4, nombre: "Airpods Max", marca: "Apple", precio: 549.99, categoria: "audio", stock: 3, destacado: false,
+    {id: 4, nombre: "Airpods Max", marca: "Apple", precio: 549.99, categoria: "mobile-accessories", stock: 3, destacado: false,
         envio: {zona: "Lima", dias: 1}, 
         imagen : "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/thumbnail.webp",
         alt : "AirPods Max plateados"

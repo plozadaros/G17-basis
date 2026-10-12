@@ -19,8 +19,7 @@ const pedirCategoria = async  (categoria) => {
         headers : { Accept : "application/json"},
         signal : AbortSignal.timeout(ESPERA_MAXIMA)
     });
-     // 400 y algo o 500 y algo.
-    if(!respuesta.ok) { 
+    if (!respuesta.ok) { 
         throw new Error (`El servidor respondio ${respuesta.status} al pedir ${categoria}`);
     }
 

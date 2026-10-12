@@ -1,35 +1,56 @@
-import {IGV, ENVIO_GRATIS_DESDE, costoDeEnvio, sumar} from "./tienda.js";
+import { IGV, ENVIO_GRATIS_DESDE, costoDeEnvio } from "./tienda.js";
+
 export const CLAVE_CARRITO = "techcart_carrito";
 
-export const agregarAlCarrito = (carrito, producto) => [...carrito, producto];
-export const quitarDelCarrito = (carrito, posicion) => carrito.filter((producto, i) => i !== posicion);
-
-export const resumenCarrito = (carrito) => {
-    const unidades = carrito.length;
-    const subTotal = sumar(...carrito.map(({precio}) => precio)); // 100
-    const igv = subTotal * IGV; // 100 * 0.18 = 18 soles
-    const envio = unidades === 0 ? 0 : costoDeEnvio(subTotal); // 9.90
-    return {unidades, subTotal, igv, envio,  total : subTotal + igv + envio}; // 127.90
+export const sumarLinea = (lineas, producto, cuantas = 1) => {
+    const existente = lineas.find(({id}) => id === producto.id);
+    if (!existente) {
+        return [...lineas, {...producto, cantidad: cuantas}];
+    }
+    return lineas.map((linea) =>
+        linea.id === producto.id ? {...linea, cantidad: linea.cantidad + cuantas} : linea);
 };
 
-export const faltaParaEnvioGratis = (subTotal) => Math.max(ENVIO_GRATIS_DESDE - subTotal,0);
+export const agregarAlCarrito = (carrito, producto, cuantas = 1) => sumarLinea(carrito, producto, cuantas);
+
+export const cambiarCantidad = (lineas, id, paso) =>
+    lineas
+        .map((linea) => (linea.id === id ? {...linea, cantidad: linea.cantidad + paso} : linea))
+        .filter(({cantidad}) => cantidad > 0);
+
+export const quitarDelCarrito = (carrito, id) => carrito.filter((linea) => linea.id !== id);
+
+export const resumenCarrito = (carrito) => {
+    const unidades = carrito.reduce((suma, {cantidad}) => suma + cantidad, 0);
+    const subTotal = carrito.reduce((suma, {precio, cantidad}) => suma + precio * cantidad, 0);
+    const igv = subTotal * IGV;
+    const envio = unidades === 0 ? 0 : costoDeEnvio(subTotal);
+    return {unidades, subTotal, igv, envio, total : subTotal + igv + envio};
+};
+
+export const faltaParaEnvioGratis = (subTotal) => Math.max(ENVIO_GRATIS_DESDE - subTotal, 0);
+
+const agruparLineas = (guardado) =>
+    guardado.reduce((lineas, linea) => sumarLinea(lineas, linea, Number(linea.cantidad) || 1), []);
 
 export const guardarCarrito = (carrito) => {
     try {
         localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito));
-    } catch(error) {
+    } catch (error) {
         console.warn("No se pudo guardar el carrito:", error.message);
     }
-}
+};
+
 export const leerCarrito = () => {
     try {
         const crudo = localStorage.getItem(CLAVE_CARRITO);
-        return crudo ? JSON.parse(crudo) : [];
+        const guardado = crudo ? JSON.parse(crudo) : [];
+        return Array.isArray(guardado) ? agruparLineas(guardado) : [];
     } catch (error) {
-        console.warn("El carrito guardado no se pudo leer, empiece desde uno vacio", error.message);
+        console.warn("El carrito guardado no se pudo leer, empiece desde uno vacio:", error.message);
         return [];
     }
-}
+};
 
 export const olvidarCarrito = () => {
     try {
@@ -37,4 +58,4 @@ export const olvidarCarrito = () => {
     } catch (error) {
         console.warn("No se pudo borrar el carrito guardado:", error.message);
     }
-}
+};
