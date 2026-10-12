@@ -25,8 +25,11 @@
       --color-texto:        #1d1d1f;
       --color-texto-suave:  #6e6e73;
       --color-borde:        #d2d2d7;
+      --color-oferta:       #b45309;
 
       --radius-tarjeta: 12px;
+
+      --shadow-tarjeta: 0 12px 24px rgb(0 0 0 / 0.15);
 
       --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
@@ -54,6 +57,9 @@
         --color-texto:        #f5f5f7;
         --color-texto-suave:  #a1a1a6;
         --color-borde:        #3a3a3c;
+        --color-oferta:       #fbbf24;
+
+        --shadow-tarjeta: 0 16px 32px rgb(0 0 0 / 0.7);
       }
     }
 
@@ -81,6 +87,10 @@
                focus-visible:outline-3 focus-visible:outline-marca focus-visible:outline-offset-2;
       }
 
+      .celda {
+        @apply border border-borde px-2 py-1.5 text-left;
+      }
+
       .titulo-seccion {
         @apply text-seccion leading-tight
                after:content-[''] after:block after:w-12 after:h-[3px]
@@ -92,7 +102,7 @@
 
 <body class="bg-fondo text-texto max-w-pagina monitor:max-w-ancha mx-auto p-4 lg:p-5 monitor:p-7">
 
-  <header class="flex flex-col items-start gap-4 bg-tarjeta rounded-tarjeta py-4 px-5
+  <header class="sticky top-0 z-10 flex flex-col items-start gap-4 bg-tarjeta rounded-tarjeta py-4 px-5
                  md:flex-row md:justify-between md:items-center">
 
     <h1 class="flex items-center justify-center w-35 h-11 bg-marca text-sobre-marca rounded-lg text-xl">TechCart</h1>
@@ -105,7 +115,24 @@
       </ul>
     </nav>
     <p id="resumen-carrito" class="font-semibold m-0" role="status" aria-live="polite"></p>
+
+    <a class="boton inline-flex items-center gap-2.5 no-underline" href="#carrito">
+      Comprar
+      <span id="contador-carrito"
+            class="flex items-center justify-center w-[22px] h-[22px] rounded-full
+                   bg-sobre-marca text-marca text-xs font-bold">0</span>
+    </a>
   </header>
+
+  <section class="promo flex flex-wrap items-center gap-4 bg-tarjeta border border-borde
+                  border-l-[5px] border-l-marca rounded-tarjeta py-4 px-5">
+    <img class="w-30 rounded-lg" src="img/macbook.webp"
+         alt="MacBook Air abierta sobre un escritorio" width="120" />
+    <div>
+      <h2 class="titulo-seccion">Semana de tecnología</h2>
+      <p class="mt-1">Hasta 20 % de descuento en laptops seleccionadas, con envío gratis a Lima.</p>
+    </div>
+  </section>
 
   <main>
 
@@ -126,6 +153,11 @@
         <h3 class="text-base leading-tight mb-1">Pago seguro</h3>
         <p class="text-sm text-texto-suave">Tarjeta, PayPal o contra entrega.</p>
       </article>
+      <article class="tarjeta text-center">
+        <p class="text-3xl mb-1" aria-hidden="true">🔧</p>
+        <h3 class="text-base leading-tight mb-1">Servicio técnico</h3>
+        <p class="text-sm text-texto-suave">Taller propio y repuestos originales.</p>
+      </article>
     </section>
 
     <section id="catalogo">
@@ -139,7 +171,7 @@
       <h2 class="titulo-seccion">Tu carrito</h2>
       <ul id="lista-carrito" class="list-none p-0 m-0"></ul>
       <p id="total-carrito" class="font-semibold mt-4"></p>
-      <div class="h-2 w-full bg-fondo-suave rounded-full overflow:hidden mt-2" aria-hidden="true">
+      <div class="h-2 w-full bg-fondo-suave rounded-full overflow-hidden mt-2" aria-hidden="true">
         <div id="barra-envio" class="h-full bg-exito w-0"></div>
       </div>
       <p id="mensaje-envio" class="text-sm text-texto-suave mt-1"></p>
@@ -148,9 +180,9 @@
     <section id="compra" class="bg-tarjeta rounded-tarjeta p-6 mt-6">
       <h2 class="titulo-seccion">Finalizar compra</h2>
 
-      <form id="form-compra" novalidate>
+      <form id="form-compra" class="grid grid-cols-1 gap-x-5 lg:grid-cols-[2fr_1fr]" novalidate>
 
-        <fieldset class="border border-borde rounded-lg p-4 mb-4 grid grid-cols-1 gap-x-4 md:grid-cols-2">
+        <fieldset class="border border-borde rounded-lg p-4 mb-4 grid grid-cols-1 gap-x-4 md:grid-cols-2 lg:row-span-2">
           <legend class="font-semibold px-1.5">Datos de envío</legend>
 
           <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
@@ -170,7 +202,8 @@
                    autocomplete="address-line1" />
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <div class="fila col-span-full flex flex-wrap gap-x-4">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="ciudad">Ciudad</label>
             <input class="campo" type="text" id="ciudad" name="ciudad" list="ciudades" required
                    autocomplete="address-level2" />
@@ -183,7 +216,7 @@
             </datalist>
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="pais">País</label>
             <select class="campo" id="pais" name="pais" required>
               <option value="">— Elige un país —</option>
@@ -194,17 +227,20 @@
               <option value="es">España</option>
             </select>
           </p>
+          </div>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <div class="fila col-span-full flex flex-wrap gap-x-4">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="telefono">Teléfono</label>
             <input class="campo" type="tel" id="telefono" name="telefono" required pattern="[0-9]{7,}"
                    title="Solo números, al menos 7 dígitos" autocomplete="tel" />
           </p>
 
-          <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
+          <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
             <label class="basis-full" for="fecha">Fecha de entrega deseada</label>
             <input class="campo" type="date" id="fecha" name="fecha" />
           </p>
+          </div>
 
           <p class="flex flex-wrap items-center gap-2 my-3 last:mb-0">
             <label class="basis-full" for="cantidad">Cantidad de unidades</label>
@@ -244,9 +280,10 @@
           <label for="terminos">Acepto los términos y condiciones</label>
         </p>
 
-        <button class="boton bg-exito text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        <button class="boton bg-exito text-lg col-span-full justify-self-start
+                       disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit">Confirmar pedido</button>
-        <div id="estado-pedido" class="mt-3" role="status" aria-live="polite"></div>
+        <div id="estado-pedido" class="col-span-full mt-3" role="status" aria-live="polite"></div>
       </form>
     </section>
 
@@ -268,40 +305,56 @@
       <caption class="font-semibold text-left mb-2">Tarifas por zona</caption>
       <thead>
         <tr>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Zona</th>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Tiempo</th>
-          <th class="border border-borde px-2 py-1.5 text-left bg-fondo-suave">Costo</th>
+          <th class="celda bg-fondo-suave">Zona</th>
+          <th class="celda bg-fondo-suave">Tiempo</th>
+          <th class="celda bg-fondo-suave">Costo</th>
         </tr>
       </thead>
       <tbody>
 
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Lima</td>
-          <td class="border border-borde px-2 py-1.5">24 horas</td>
-          <td class="border border-borde px-2 py-1.5">Gratis</td>
+          <td class="celda">Lima</td>
+          <td class="celda">24 horas</td>
+          <td class="celda">Gratis</td>
         </tr>
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Resto del Perú</td>
-          <td class="border border-borde px-2 py-1.5">3 a 5 días</td>
-          <td class="border border-borde px-2 py-1.5">$9.90</td>
+          <td class="celda">Resto del Perú</td>
+          <td class="celda">3 a 5 días</td>
+          <td class="celda">$9.90</td>
         </tr>
         <tr class="even:bg-fondo hover:bg-resalte">
-          <td class="border border-borde px-2 py-1.5">Internacional</td>
-          <td class="border border-borde px-2 py-1.5">7 a 15 días</td>
-          <td class="border border-borde px-2 py-1.5">$29.90</td>
+          <td class="celda">Internacional</td>
+          <td class="celda">7 a 15 días</td>
+          <td class="celda">$29.90</td>
         </tr>
       </tbody>
     </table>
   </aside>
 
-  <footer class="flex flex-wrap items-center gap-4 py-6 border-t border-borde text-texto-suave text-sm">
-    <p>&copy; 2026 TechCart · Proyecto educativo</p>
-    <p>Datos e imágenes de
-      <a class="text-marca after:content-['↗'] after:ml-1"
-         href="https://dummyjson.com" target="_blank" rel="noopener">DummyJSON</a></p>
+  <footer class="grid grid-cols-1 gap-6 py-6 border-t border-borde text-texto-suave text-sm md:grid-cols-3">
+    <div>
+      <h2 class="text-base text-texto mb-2">TechCart</h2>
+      <p>&copy; 2026 TechCart · Proyecto educativo</p>
+    </div>
 
-    <address class="order-first mr-auto not-italic">Contacto:
-      <a class="text-marca" href="mailto:hola@techcart.com">hola@techcart.com</a></address>
+    <div>
+      <h2 class="text-base text-texto mb-2">Enlaces</h2>
+      <ul>
+        <li><a class="text-marca" href="#catalogo">Catálogo</a></li>
+        <li><a class="text-marca" href="#carrito">Carrito</a></li>
+        <li><a class="text-marca" href="#compra">Comprar</a></li>
+        <li><a class="text-marca after:content-['↗'] after:ml-1"
+               href="https://dummyjson.com" target="_blank" rel="noopener">Datos e imágenes de DummyJSON</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="text-base text-texto mb-2">Contacto</h2>
+      <address class="not-italic">
+        <a class="text-marca" href="mailto:hola@techcart.com">hola@techcart.com</a>
+      </address>
+      <p>Lunes a sábado, 10:00 a 20:00</p>
+    </div>
   </footer>
 
 </body>
