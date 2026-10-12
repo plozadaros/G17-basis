@@ -39,7 +39,11 @@ export const tarjetaProducto = ({destacado, id, imagen, alt, marca, nombre, prec
         }
             <figcaption class="text-xs font-semibold text-texto-suave uppercase tracking-wide">${marca}</figcaption>
         </figure>
-        <h3 class="text-lg leading-tight my-1 group-hover:text-marca">${nombre}</h3>
+        <h3 class="text-lg leading-tight my-1">
+            <button class="group-hover:text-marca underline-offset-2 hover:underline" type="button"
+                    data-accion="detalle" data-id="${id}"
+                    aria-label="Ver el detalle de ${nombre}">${nombre}</button>
+        </h3>
         <p class="mb-3"><strong class="text-exito">${formatearPrecio(precio)}</strong></p>
 
         <button class="boton self-center ${destacado ? "mt-4" : "mt-auto"}" type="button"
@@ -81,6 +85,29 @@ export const esqueletoTarjeta = () => `
         </article>
 `;
 
+export const fichaDetalle = ({imagen, alt, nombre, marca, precio, stock, descripcion}) => `
+    <div class="flex flex-wrap items-start gap-5">
+        ${ imagen ?
+            `<img class="w-45 aspect-square object-contain dark:brightness-90" src="${imagen}" alt="${alt}" width="180" />`
+            :
+            `<div class="w-45 aspect-square grid place-items-center text-5xl bg-fondo rounded-lg"
+                aria-hidden="true">📦</div>`
+        }
+        <div class="flex-1 min-w-55">
+            <p class="text-xs font-semibold text-texto-suave uppercase tracking-wide">${marca}</p>
+            <h2 class="titulo-seccion">${nombre}</h2>
+            <p class="my-3"><strong class="text-exito text-xl">${formatearPrecio(precio)}</strong></p>
+            <p class="text-sm text-texto-suave mb-3">${stock > 0 ? `${stock} en stock` : "Agotado"}</p>
+            <p>${descripcion}</p>
+        </div>
+    </div>
+`;
+
+export const errorDetalle = (mensaje, id) => `
+    <p class="font-semibold text-error mb-3">${mensaje}</p>
+    <button class="boton" type="button" data-accion="reintentar-detalle" data-id="${id}">Reintentar</button>
+`;
+
 export const avisoCatalogo = (texto) => `
     <p class="text-sm text-texto-suave my-3">${texto}</p>
 `;
@@ -88,4 +115,9 @@ export const avisoCatalogo = (texto) => `
 export const avisoError = (mensaje) => `
     <p class="font-semibold text-error mb-3">${mensaje}</p>
     <button class="boton" type="button" data-accion="reintentar">Reintentar</button>
+`;
+
+export const avisoGuardado = (texto) => `
+    <p class="text-sm text-texto-suave my-3">${texto}</p>
+    <button class="boton" type="button" data-accion="actualizar">Actualizar</button>
 `;

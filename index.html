@@ -179,6 +179,14 @@
     <section id="catalogo">
       <h2 class="titulo-seccion">Catálogo de productos</h2>
 
+      <p class="flex flex-wrap items-center gap-2 my-3">
+        <label class="basis-full" for="buscar">Buscar en la tienda</label>
+        <input class="campo" type="search" id="buscar" name="buscar"
+               placeholder="Ej.: phone" autocomplete="off" />
+      </p>
+
+      <p id="estado-busqueda" class="text-sm text-texto-suave" role="status" aria-live="polite"></p>
+
       <nav id="filtros" class="flex flex-wrap justify-center gap-3 my-4" aria-label="Categorías"></nav>
 
       <div id="estado-catalogo" role="status" aria-live="polite"></div>
@@ -307,6 +315,13 @@
     </section>
 
   </main>
+
+  <dialog id="detalle"
+          class="bg-tarjeta text-texto border border-borde rounded-tarjeta p-6 w-[92vw] max-w-150
+                 backdrop:bg-black/60">
+    <div id="detalle-cuerpo"></div>
+    <button class="boton mt-4" type="button" data-accion="cerrar-detalle">Cerrar</button>
+  </dialog>
 
   <aside class="flex flex-col items-stretch gap-2 bg-tarjeta border border-borde rounded-tarjeta p-6 overflow-x-auto">
     <h2 class="titulo-seccion">Información de compra</h2>

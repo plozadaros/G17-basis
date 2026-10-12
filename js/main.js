@@ -1,10 +1,12 @@
 import { agregarAlCarrito, cambiarCantidad, faltaParaEnvioGratis, guardarCarrito, leerCarrito,
          olvidarCarrito, quitarDelCarrito, resumenCarrito } from "./carrito.js";
 import { TODAS, categorias, contarPorCategoria, etiquetaCategoria } from "./datos.js";
-import formatearPrecio from "./formato.js";
+import formatearPrecio, { formatearFecha } from "./formato.js";
 import { ENVIO_GRATIS_DESDE, filtrarPorCategoria } from "./tienda.js";
-import { botonCategoria, filaCarrito, tarjetaProducto, esqueletoTarjeta, avisoCatalogo, avisoError } from "./ui.js";
-import { obtenerProductos } from "./api.js";
+import { avisoCatalogo, avisoError, avisoGuardado, botonCategoria, errorDetalle, esqueletoTarjeta,
+         fichaDetalle, filaCarrito, tarjetaProducto } from "./ui.js";
+import { buscarEnServidor, obtenerProducto, obtenerProductos } from "./api.js";
+import { guardarCatalogo, leerCatalogo } from "./cache.js";
 
 const resumenCabecera = document.querySelector("#resumen-carrito");
 const contadorCarrito = document.querySelector("#contador-carrito");
@@ -16,14 +18,24 @@ const botonVaciar = document.querySelector("#vaciar");
 const grillaCatalogo = document.querySelector("#catalogo-grid");
 const estadoCatalogo = document.querySelector("#estado-catalogo");
 const filtros = document.querySelector("#filtros");
+const campoBuscar = document.querySelector("#buscar");
+const estadoBusqueda = document.querySelector("#estado-busqueda");
+const dialogoDetalle = document.querySelector("#detalle");
+const cuerpoDetalle = document.querySelector("#detalle-cuerpo");
 const botonTema = document.querySelector("#tema");
 
 const CLAVE_TEMA = "techcart_tema";
 const TITULO = document.title;
 const ID_AVISO_VACIO = "sin-resultados";
+const DEMORA_REBOTE = 350;
+const LETRAS_MINIMAS = 2;
 
 let catalogo = [];
 let categoriaActiva = TODAS;
+let termino = "";
+let resultadosServidor = [];
+let abortoBusqueda = null;
+let reboteBusqueda = 0;
 
 const mensajeDeError = (error) => {
     if (error.name === "TypeError") {
@@ -35,7 +47,9 @@ const mensajeDeError = (error) => {
     return error.message;
 };
 
-const productosVisibles = () => filtrarPorCategoria(catalogo, categoriaActiva);
+const buscando = () => termino.trim().length >= LETRAS_MINIMAS;
+const fuente = () => (buscando() ? resultadosServidor : catalogo);
+const productosVisibles = () => filtrarPorCategoria(fuente(), categoriaActiva);
 
 const quitarAvisoVacio = () => {
     document.querySelector(`#${ID_AVISO_VACIO}`)?.remove();
@@ -51,9 +65,9 @@ const mostrarAvisoVacio = (texto) => {
 };
 
 const pintarFiltros = () => {
-    const cuenta = contarPorCategoria(catalogo);
+    const cuenta = contarPorCategoria(fuente());
     filtros.innerHTML = [
-        botonCategoria(TODAS, "Todas", catalogo.length, categoriaActiva === TODAS),
+        botonCategoria(TODAS, "Todas", fuente().length, categoriaActiva === TODAS),
         ...categorias.map((categoria) =>
             botonCategoria(categoria, etiquetaCategoria[categoria], cuenta[categoria] ?? 0,
                            categoria === categoriaActiva)),
@@ -65,24 +79,36 @@ const pintarCatalogo = (lista = productosVisibles()) => {
     grillaCatalogo.setAttribute("aria-label", `Catalogo con ${lista.length} productos`);
     pintarFiltros();
 
-    if (lista.length === 0 && catalogo.length > 0) {
+    if (lista.length > 0) {
+        quitarAvisoVacio();
+        return;
+    }
+
+    if (buscando()) {
+        mostrarAvisoVacio(`No encontramos nada para "${termino.trim()}". Prueba con otra palabra o quita el filtro.`);
+        return;
+    }
+
+    if (catalogo.length > 0) {
         mostrarAvisoVacio("Tus filtros no dejaron ningun producto. Prueba con otra categoria.");
         return;
     }
+
     quitarAvisoVacio();
 };
 
-const mostrarCargando = () => {
-    grillaCatalogo.innerHTML = esqueletoTarjeta().repeat(8);
-    estadoCatalogo.innerHTML = avisoCatalogo("Cargando productos...");
-};
-
-const mostrarExito = (lista) => {
+const mostrarExito = (lista, {fallaron = 0, fecha = null} = {}) => {
     const cuenta = contarPorCategoria(lista);
     const detalle = categorias
         .map((categoria) => `${etiquetaCategoria[categoria]} ${cuenta[categoria] ?? 0}`)
         .join(" - ");
-    estadoCatalogo.innerHTML = avisoCatalogo(`${lista.length} productos - ${detalle}`);
+    const faltantes = fallaron > 0
+        ? ` - ${fallaron} categoria(s) no respondieron`
+        : "";
+
+    estadoCatalogo.innerHTML = fecha
+        ? avisoGuardado(`${lista.length} productos guardados el ${formatearFecha(fecha)}${faltantes}`)
+        : avisoCatalogo(`${lista.length} productos - ${detalle}${faltantes}`);
 };
 
 const mostrarVacio = () => {
@@ -96,26 +122,62 @@ const mostrarError = (error) => {
     estadoCatalogo.innerHTML = avisoError(mensajeDeError(error));
 };
 
-const cargarCatalogo = async () => {
-    mostrarCargando();
+const ocuparBoton = (boton, textoOcupado) => {
+    if (!boton) return () => {};
+    const original = boton.textContent;
+    boton.disabled = true;
+    boton.textContent = textoOcupado;
+    return () => {
+        boton.disabled = false;
+        boton.textContent = original;
+    };
+};
+
+const cargarCatalogo = async ({forzar = false} = {}) => {
+    if (!forzar) {
+        const guardado = leerCatalogo();
+        if (guardado) {
+            catalogo = guardado.productos;
+            pintarCatalogo();
+            mostrarExito(catalogo, {fecha : guardado.fecha});
+            return;
+        }
+    }
+
+    const boton = estadoCatalogo.querySelector("button[data-accion]");
+    const soltarBoton = ocuparBoton(boton,
+        boton?.dataset.accion === "actualizar" ? "Actualizando..." : "Reintentando...");
+
+    grillaCatalogo.innerHTML = esqueletoTarjeta().repeat(8);
+    quitarAvisoVacio();
+    if (!boton) estadoCatalogo.innerHTML = avisoCatalogo("Cargando productos...");
+
     try {
-        catalogo = await obtenerProductos();
+        const {productos, fallaron} = await obtenerProductos();
+        catalogo = productos;
+
         if (catalogo.length === 0) {
             mostrarVacio();
             return;
         }
+
+        guardarCatalogo(catalogo);
         pintarCatalogo();
-        mostrarExito(catalogo);
+        mostrarExito(catalogo, {fallaron});
     } catch (error) {
         console.warn("No se pudo cargar el catalogo");
         mostrarError(error);
+    } finally {
+        soltarBoton();
     }
 };
 
 estadoCatalogo.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("button[data-accion='reintentar']");
+    const boton = evento.target.closest("button[data-accion]");
     if (!boton) return;
-    cargarCatalogo();
+
+    if (boton.dataset.accion === "reintentar") cargarCatalogo({forzar : true});
+    if (boton.dataset.accion === "actualizar") cargarCatalogo({forzar : true});
 });
 
 filtros.addEventListener("click", (evento) => {
@@ -123,6 +185,56 @@ filtros.addEventListener("click", (evento) => {
     if (!boton) return;
     categoriaActiva = boton.dataset.categoria;
     pintarCatalogo();
+});
+
+const preguntarAlServidor = async (texto) => {
+    abortoBusqueda = new AbortController();
+
+    try {
+        resultadosServidor = await buscarEnServidor(texto, abortoBusqueda.signal);
+        estadoBusqueda.textContent = resultadosServidor.length === 0
+            ? `El servidor no encontro nada para "${texto}".`
+            : `${resultadosServidor.length} resultado(s) para "${texto}" en el servidor.`;
+        pintarCatalogo();
+    } catch (error) {
+        if (error.name === "AbortError") return;
+        estadoBusqueda.textContent = mensajeDeError(error);
+    }
+};
+
+campoBuscar.addEventListener("input", (evento) => {
+    termino = evento.target.value;
+    clearTimeout(reboteBusqueda);
+    abortoBusqueda?.abort();
+
+    if (!buscando()) {
+        resultadosServidor = [];
+        estadoBusqueda.textContent = "";
+        pintarCatalogo();
+        return;
+    }
+
+    estadoBusqueda.textContent = `Buscando "${termino.trim()}"...`;
+    reboteBusqueda = setTimeout(() => preguntarAlServidor(termino.trim()), DEMORA_REBOTE);
+});
+
+const abrirDetalle = async (id) => {
+    cuerpoDetalle.innerHTML = avisoCatalogo("Cargando el producto...");
+    if (!dialogoDetalle.open) dialogoDetalle.showModal();
+
+    try {
+        cuerpoDetalle.innerHTML = fichaDetalle(await obtenerProducto(id));
+    } catch (error) {
+        cuerpoDetalle.innerHTML = errorDetalle(mensajeDeError(error), id);
+    }
+};
+
+dialogoDetalle.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-accion]");
+    if (!boton) return;
+
+    if (boton.dataset.accion === "cerrar-detalle") dialogoDetalle.close();
+    if (boton.dataset.accion === "reintentar-detalle") abrirDetalle(Number(boton.dataset.id));
 });
 
 const guardarTema = (tema) => {
@@ -170,11 +282,19 @@ const pintarCarrito = () => {
 };
 
 grillaCatalogo.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("button[data-accion='agregar']");
+    const boton = evento.target.closest("button[data-accion]");
     if (!boton) return;
 
     const id = Number(boton.dataset.id);
-    const producto = catalogo.find((p) => p.id === id);
+
+    if (boton.dataset.accion === "detalle") {
+        abrirDetalle(id);
+        return;
+    }
+
+    if (boton.dataset.accion !== "agregar") return;
+
+    const producto = fuente().find((p) => p.id === id);
     if (!producto) return;
 
     carrito = agregarAlCarrito(carrito, producto);
