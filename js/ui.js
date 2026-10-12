@@ -1,4 +1,5 @@
-import formatearPrecio from "./formato.js";
+import formatearPrecio, { formatearFecha } from "./formato.js";
+import { enElTope } from "./carrito.js";
 
 const CLASES_TARJETA =
 "tarjeta group flex flex-col text-center " +
@@ -55,7 +56,10 @@ export const tarjetaProducto = ({destacado, id, imagen, alt, marca, nombre, prec
     </article>
 `;
 
-export const filaCarrito = ({id, nombre, precio, cantidad}) => `
+export const filaCarrito = (linea) => {
+    const {id, nombre, precio, cantidad} = linea;
+    const tope = enElTope(linea);
+    return `
         <li class="flex flex-wrap items-center justify-between gap-2 border-b border-borde py-2">
             <span>${nombre}</span>
             <span class="flex items-center gap-3">
@@ -63,8 +67,9 @@ export const filaCarrito = ({id, nombre, precio, cantidad}) => `
                     <button class="boton text-sm px-2 py-0.5" type="button" data-accion="menos"
                             data-id="${id}" aria-label="Quitar una unidad de ${nombre}">&minus;</button>
                     <strong class="min-w-5 text-center">${cantidad}</strong>
-                    <button class="boton text-sm px-2 py-0.5" type="button" data-accion="mas"
-                            data-id="${id}" aria-label="Agregar una unidad de ${nombre}">+</button>
+                    <button class="boton text-sm px-2 py-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                            type="button" data-accion="mas" data-id="${id}"
+                            aria-label="Agregar una unidad de ${nombre}" ${tope ? "disabled" : ""}>+</button>
                 </span>
                 <strong class="text-exito">${formatearPrecio(precio * cantidad)}</strong>
                 <button class="boton text-sm" type="button" data-accion="quitar"
@@ -73,6 +78,38 @@ export const filaCarrito = ({id, nombre, precio, cantidad}) => `
                 </button>
             </span>
         </li>
+`;
+};
+
+export const comprobante = ({numero, fecha, unidades, subTotal, igv, envio, total, lineas}) => `
+    <p class="font-semibold text-exito">Pedido ${numero} confirmado.</p>
+    <p class="text-sm text-texto-suave">A nombre de <span data-cliente></span>, el ${formatearFecha(fecha)}.</p>
+    <ul class="list-none p-0 my-3">
+        ${lineas.map(({nombre, cantidad, precio}) => `
+            <li class="flex flex-wrap justify-between gap-2 border-b border-borde py-1">
+                <span>${cantidad} x ${nombre}</span>
+                <strong>${formatearPrecio(precio * cantidad)}</strong>
+            </li>`).join("")}
+    </ul>
+    <p class="text-sm">${unidades} unidad(es) - Subtotal ${formatearPrecio(subTotal)} -
+       IGV ${formatearPrecio(igv)} - Envio ${formatearPrecio(envio)}</p>
+    <p class="font-semibold">Total ${formatearPrecio(total)}</p>
+`;
+
+export const fichaPedido = ({numero, fecha, unidades, total, lineas}) => `
+    <details class="border border-borde rounded-lg p-3 mb-2">
+        <summary class="cursor-pointer font-semibold">
+            ${numero} - ${formatearFecha(fecha)} - ${unidades} unidad(es) - ${formatearPrecio(total)}
+        </summary>
+        <p class="text-sm text-texto-suave mt-2">A nombre de <span data-cliente></span></p>
+        <ul class="list-none p-0 mt-2">
+            ${lineas.map(({nombre, cantidad, precio}) => `
+                <li class="flex flex-wrap justify-between gap-2 border-b border-borde py-1">
+                    <span>${cantidad} x ${nombre}</span>
+                    <strong>${formatearPrecio(precio * cantidad)}</strong>
+                </li>`).join("")}
+        </ul>
+    </details>
 `;
 
 export const esqueletoTarjeta = () => `

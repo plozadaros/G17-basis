@@ -1,7 +1,15 @@
-import { TODAS } from "./datos.js";
+import { TODAS, etiquetaCategoria } from "./datos.js";
 
 export const IGV = 0.18;
 export const ENVIO_GRATIS_DESDE = 5000;
+
+export const ORDEN_CATALOGO = "catalogo";
+
+export const ORDENES = {
+    [ORDEN_CATALOGO]: "Orden del catalogo",
+    "precio-asc": "Precio: de menor a mayor",
+    "precio-desc": "Precio: de mayor a menor",
+};
 
 export const precioConIgv = (precio) => precio * (1 + IGV);
 
@@ -18,10 +26,29 @@ export function tarifaPorZona(zona) {
     }
 }
 
+export const normalizar = (texto) =>
+    String(texto)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
 export const filtrarPorCategoria = (items, categoria) =>
     categoria === TODAS ? items : items.filter((producto) => producto.categoria === categoria);
 
-export const buscar = (items, texto) => items.filter(({nombre}) => nombre.toLowerCase().includes(texto.toLowerCase()));
+export const buscar = (items, texto) => {
+    const aguja = normalizar(texto ?? "").trim();
+    if (!aguja) return items;
+
+    return items.filter(({nombre, marca, categoria}) =>
+        normalizar(`${nombre} ${marca ?? ""} ${etiquetaCategoria[categoria] ?? categoria ?? ""}`).includes(aguja));
+};
+
+export const ordenar = (items, orden) => {
+    if (orden === "precio-asc") return [...items].sort((a, b) => a.precio - b.precio);
+    if (orden === "precio-desc") return [...items].sort((a, b) => b.precio - a.precio);
+    return items;
+};
+
 export const masCaro = (items) => items.reduce((mayor, p) => (p.precio > mayor.precio ? p : mayor), items[0]);
 export const agregarProducto = (items, nuevoProducto) => [...items, nuevoProducto];
 export const sumar = (...precios) => precios.reduce((suma, n) => suma + n, 0);

@@ -1,12 +1,13 @@
 export const TODAS = "todas";
 
-export const categorias = ["laptops", "smartphones", "tablets", "mobile-accessories"];
+export const categorias = ["laptops", "smartphones", "tablets", "mobile-accessories", "mens-watches"];
 
 export const etiquetaCategoria = {
     laptops: "Laptops",
     smartphones: "Teléfonos",
     tablets: "Tablets",
     "mobile-accessories": "Accesorios",
+    "mens-watches": "Relojes",
 };
 export const productos = [
     {id: 1, nombre: "Macbook Pro 14", marca: "Apple", precio: 1999.99, categoria: "laptops", stock: 5, destacado: true, 

@@ -2,11 +2,12 @@ import { agregarAlCarrito, cambiarCantidad, faltaParaEnvioGratis, guardarCarrito
          olvidarCarrito, quitarDelCarrito, resumenCarrito } from "./carrito.js";
 import { TODAS, categorias, contarPorCategoria, etiquetaCategoria } from "./datos.js";
 import formatearPrecio, { formatearFecha } from "./formato.js";
-import { ENVIO_GRATIS_DESDE, filtrarPorCategoria } from "./tienda.js";
-import { avisoCatalogo, avisoError, avisoGuardado, botonCategoria, errorDetalle, esqueletoTarjeta,
-         fichaDetalle, filaCarrito, tarjetaProducto } from "./ui.js";
+import { ENVIO_GRATIS_DESDE, ORDENES, ORDEN_CATALOGO, buscar, filtrarPorCategoria, ordenar } from "./tienda.js";
+import { avisoCatalogo, avisoError, avisoGuardado, botonCategoria, comprobante, errorDetalle,
+         esqueletoTarjeta, fichaDetalle, fichaPedido, filaCarrito, tarjetaProducto } from "./ui.js";
 import { buscarEnServidor, obtenerProducto, obtenerProductos } from "./api.js";
 import { guardarCatalogo, leerCatalogo } from "./cache.js";
+import { guardarPedido, leerPedidos, numeroDePedido } from "./pedidos.js";
 
 const resumenCabecera = document.querySelector("#resumen-carrito");
 const contadorCarrito = document.querySelector("#contador-carrito");
@@ -17,12 +18,18 @@ const mensajeEnvio = document.querySelector("#mensaje-envio");
 const botonVaciar = document.querySelector("#vaciar");
 const grillaCatalogo = document.querySelector("#catalogo-grid");
 const estadoCatalogo = document.querySelector("#estado-catalogo");
+const avisoRespaldo = document.querySelector("#aviso-respaldo");
 const filtros = document.querySelector("#filtros");
 const campoBuscar = document.querySelector("#buscar");
+const campoOrden = document.querySelector("#orden");
 const estadoBusqueda = document.querySelector("#estado-busqueda");
 const dialogoDetalle = document.querySelector("#detalle");
 const cuerpoDetalle = document.querySelector("#detalle-cuerpo");
+const listaPedidos = document.querySelector("#lista-pedidos");
+const seccionPedidos = document.querySelector("#pedidos");
 const botonTema = document.querySelector("#tema");
+const formularioCompra = document.querySelector("#form-compra");
+const estadoPedido = document.querySelector("#estado-pedido");
 
 const CLAVE_TEMA = "techcart_tema";
 const TITULO = document.title;
@@ -33,9 +40,11 @@ const LETRAS_MINIMAS = 2;
 let catalogo = [];
 let categoriaActiva = TODAS;
 let termino = "";
+let orden = ORDEN_CATALOGO;
 let resultadosServidor = [];
 let abortoBusqueda = null;
 let reboteBusqueda = 0;
+let carrito = leerCarrito();
 
 const mensajeDeError = (error) => {
     if (error.name === "TypeError") {
@@ -47,9 +56,18 @@ const mensajeDeError = (error) => {
     return error.message;
 };
 
-const buscando = () => termino.trim().length >= LETRAS_MINIMAS;
-const fuente = () => (buscando() ? resultadosServidor : catalogo);
-const productosVisibles = () => filtrarPorCategoria(fuente(), categoriaActiva);
+const unirPorId = (propios, ajenos) => {
+    const porId = new Map(propios.map((producto) => [producto.id, producto]));
+    ajenos.forEach((producto) => {
+        if (!porId.has(producto.id)) porId.set(producto.id, producto);
+    });
+    return [...porId.values()];
+};
+
+const fuente = () => (resultadosServidor.length > 0 ? unirPorId(catalogo, resultadosServidor) : catalogo);
+
+const productosVisibles = () =>
+    ordenar(buscar(filtrarPorCategoria(fuente(), categoriaActiva), termino), orden);
 
 const quitarAvisoVacio = () => {
     document.querySelector(`#${ID_AVISO_VACIO}`)?.remove();
@@ -65,9 +83,11 @@ const mostrarAvisoVacio = (texto) => {
 };
 
 const pintarFiltros = () => {
-    const cuenta = contarPorCategoria(fuente());
+    const encontrados = buscar(fuente(), termino);
+    const cuenta = contarPorCategoria(encontrados);
+
     filtros.innerHTML = [
-        botonCategoria(TODAS, "Todas", fuente().length, categoriaActiva === TODAS),
+        botonCategoria(TODAS, "Todas", encontrados.length, categoriaActiva === TODAS),
         ...categorias.map((categoria) =>
             botonCategoria(categoria, etiquetaCategoria[categoria], cuenta[categoria] ?? 0,
                            categoria === categoriaActiva)),
@@ -84,7 +104,7 @@ const pintarCatalogo = (lista = productosVisibles()) => {
         return;
     }
 
-    if (buscando()) {
+    if (termino.trim()) {
         mostrarAvisoVacio(`No encontramos nada para "${termino.trim()}". Prueba con otra palabra o quita el filtro.`);
         return;
     }
@@ -97,27 +117,40 @@ const pintarCatalogo = (lista = productosVisibles()) => {
     quitarAvisoVacio();
 };
 
-const mostrarExito = (lista, {fallaron = 0, fecha = null} = {}) => {
-    const cuenta = contarPorCategoria(lista);
+const pintarEstadoCatalogo = ({origen = "api", fecha = null, fallaron = 0} = {}) => {
+    const esRespaldo = origen === "respaldo";
+    avisoRespaldo.hidden = !esRespaldo;
+
+    if (esRespaldo) {
+        avisoRespaldo.textContent =
+            "No pudimos conectarnos con la tienda. Estas viendo el catalogo guardado el " +
+            `${formatearFecha(fecha)}, asi que los precios y el stock pueden haber cambiado.`;
+    }
+
+    if (fecha) {
+        estadoCatalogo.innerHTML = avisoGuardado(
+            `${catalogo.length} productos guardados el ${formatearFecha(fecha)}`);
+        return;
+    }
+
+    const cuenta = contarPorCategoria(catalogo);
     const detalle = categorias
         .map((categoria) => `${etiquetaCategoria[categoria]} ${cuenta[categoria] ?? 0}`)
         .join(" - ");
-    const faltantes = fallaron > 0
-        ? ` - ${fallaron} categoria(s) no respondieron`
-        : "";
+    const faltantes = fallaron > 0 ? ` - ${fallaron} categoria(s) no respondieron` : "";
 
-    estadoCatalogo.innerHTML = fecha
-        ? avisoGuardado(`${lista.length} productos guardados el ${formatearFecha(fecha)}${faltantes}`)
-        : avisoCatalogo(`${lista.length} productos - ${detalle}${faltantes}`);
+    estadoCatalogo.innerHTML = avisoCatalogo(`${catalogo.length} productos - ${detalle}${faltantes}`);
 };
 
 const mostrarVacio = () => {
     grillaCatalogo.innerHTML = "";
+    avisoRespaldo.hidden = true;
     estadoCatalogo.innerHTML = avisoCatalogo("No hay productos para mostrar");
 };
 
 const mostrarError = (error) => {
     grillaCatalogo.innerHTML = "";
+    avisoRespaldo.hidden = true;
     quitarAvisoVacio();
     estadoCatalogo.innerHTML = avisoError(mensajeDeError(error));
 };
@@ -139,7 +172,7 @@ const cargarCatalogo = async ({forzar = false} = {}) => {
         if (guardado) {
             catalogo = guardado.productos;
             pintarCatalogo();
-            mostrarExito(catalogo, {fecha : guardado.fecha});
+            pintarEstadoCatalogo({origen : "cache", fecha : guardado.fecha});
             return;
         }
     }
@@ -153,7 +186,7 @@ const cargarCatalogo = async ({forzar = false} = {}) => {
     if (!boton) estadoCatalogo.innerHTML = avisoCatalogo("Cargando productos...");
 
     try {
-        const {productos, fallaron} = await obtenerProductos();
+        const {productos, fallaron, origen, fecha} = await obtenerProductos();
         catalogo = productos;
 
         if (catalogo.length === 0) {
@@ -161,9 +194,9 @@ const cargarCatalogo = async ({forzar = false} = {}) => {
             return;
         }
 
-        guardarCatalogo(catalogo);
+        if (origen === "api") guardarCatalogo(catalogo);
         pintarCatalogo();
-        mostrarExito(catalogo, {fallaron});
+        pintarEstadoCatalogo({origen, fecha, fallaron});
     } catch (error) {
         console.warn("No se pudo cargar el catalogo");
         mostrarError(error);
@@ -172,20 +205,34 @@ const cargarCatalogo = async ({forzar = false} = {}) => {
     }
 };
 
-estadoCatalogo.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("button[data-accion]");
-    if (!boton) return;
+const sincronizarUrl = () => {
+    const parametros = new URLSearchParams();
+    if (categoriaActiva !== TODAS) parametros.set("categoria", categoriaActiva);
+    if (termino.trim()) parametros.set("q", termino.trim());
+    if (orden !== ORDEN_CATALOGO) parametros.set("orden", orden);
 
-    if (boton.dataset.accion === "reintentar") cargarCatalogo({forzar : true});
-    if (boton.dataset.accion === "actualizar") cargarCatalogo({forzar : true});
-});
+    const consulta = parametros.toString();
+    history.replaceState(null, "", consulta ? `?${consulta}` : location.pathname);
+};
 
-filtros.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("button[data-categoria]");
-    if (!boton) return;
-    categoriaActiva = boton.dataset.categoria;
-    pintarCatalogo();
-});
+const leerUrl = () => {
+    const parametros = new URLSearchParams(location.search);
+
+    const categoria = parametros.get("categoria");
+    if (categoria === TODAS || categorias.includes(categoria)) categoriaActiva = categoria;
+
+    const texto = parametros.get("q") ?? "";
+    if (texto) {
+        termino = texto;
+        campoBuscar.value = texto;
+    }
+
+    const pedido = parametros.get("orden");
+    if (pedido && Object.hasOwn(ORDENES, pedido)) {
+        orden = pedido;
+        campoOrden.value = pedido;
+    }
+};
 
 const preguntarAlServidor = async (texto) => {
     abortoBusqueda = new AbortController();
@@ -202,20 +249,53 @@ const preguntarAlServidor = async (texto) => {
     }
 };
 
-campoBuscar.addEventListener("input", (evento) => {
-    termino = evento.target.value;
+const programarBusqueda = () => {
     clearTimeout(reboteBusqueda);
     abortoBusqueda?.abort();
 
-    if (!buscando()) {
+    const texto = termino.trim();
+
+    if (texto.length < LETRAS_MINIMAS) {
         resultadosServidor = [];
         estadoBusqueda.textContent = "";
+        sincronizarUrl();
         pintarCatalogo();
         return;
     }
 
-    estadoBusqueda.textContent = `Buscando "${termino.trim()}"...`;
-    reboteBusqueda = setTimeout(() => preguntarAlServidor(termino.trim()), DEMORA_REBOTE);
+    estadoBusqueda.textContent = `Buscando "${texto}"...`;
+    reboteBusqueda = setTimeout(() => {
+        sincronizarUrl();
+        preguntarAlServidor(texto);
+    }, DEMORA_REBOTE);
+};
+
+campoBuscar.addEventListener("input", (evento) => {
+    termino = evento.target.value;
+    pintarCatalogo();
+    programarBusqueda();
+});
+
+campoOrden.addEventListener("change", (evento) => {
+    orden = evento.target.value;
+    sincronizarUrl();
+    pintarCatalogo();
+});
+
+filtros.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-categoria]");
+    if (!boton) return;
+    categoriaActiva = boton.dataset.categoria;
+    sincronizarUrl();
+    pintarCatalogo();
+});
+
+estadoCatalogo.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-accion]");
+    if (!boton) return;
+
+    if (boton.dataset.accion === "reintentar") cargarCatalogo({forzar : true});
+    if (boton.dataset.accion === "actualizar") cargarCatalogo({forzar : true});
 });
 
 const abrirDetalle = async (id) => {
@@ -256,8 +336,6 @@ botonTema.addEventListener("click", () => {
     pintarBotonTema(oscuro);
 });
 
-let carrito = leerCarrito();
-
 const pintarCarrito = () => {
     const {unidades, subTotal, igv, envio, total} = resumenCarrito(carrito);
 
@@ -279,6 +357,17 @@ const pintarCarrito = () => {
     mensajeEnvio.textContent = falta === 0
         ? "Tu pedido ya tiene envio gratis."
         : `Te faltan ${formatearPrecio(falta)} para el envio gratis.`;
+};
+
+const pintarPedidos = () => {
+    const pedidos = leerPedidos();
+    seccionPedidos.hidden = pedidos.length === 0;
+    listaPedidos.innerHTML = [...pedidos].reverse().map(fichaPedido).join("");
+
+    [...pedidos].reverse().forEach((pedido, posicion) => {
+        const hueco = listaPedidos.querySelectorAll("[data-cliente]")[posicion];
+        if (hueco) hueco.textContent = pedido.cliente;
+    });
 };
 
 grillaCatalogo.addEventListener("click", (evento) => {
@@ -323,15 +412,17 @@ botonVaciar.addEventListener("click", () => {
     pintarCarrito();
 });
 
-const formularioCompra = document.querySelector("#form-compra");
-const estadoPedido = document.querySelector("#estado-pedido");
-
 const mostrarAviso = (mensaje, esError) => {
-    estadoPedido.querySelector("p")?.remove();
+    estadoPedido.innerHTML = "";
     const aviso = document.createElement("p");
     aviso.textContent = mensaje;
     aviso.classList.add("font-semibold", esError ? "text-error" : "text-exito");
     estadoPedido.append(aviso);
+};
+
+const mostrarComprobante = (pedido) => {
+    estadoPedido.innerHTML = comprobante(pedido);
+    estadoPedido.querySelector("[data-cliente]").textContent = pedido.cliente;
 };
 
 formularioCompra.addEventListener("submit", (evento) => {
@@ -348,17 +439,32 @@ formularioCompra.addEventListener("submit", (evento) => {
         return;
     }
 
-    const datos = new FormData(formularioCompra);
-    const nombre = datos.get("nombre");
-    const {unidades, total} = resumenCarrito(carrito);
+    const datos = Object.fromEntries(new FormData(formularioCompra));
+    const cuentas = resumenCarrito(carrito);
 
-    mostrarAviso(
-        `Gracias, ${nombre}. Tu pedido de ${carrito.length} producto(s) y ${unidades} unidad(es) ` +
-        `por ${formatearPrecio(total)} quedo registrado.`, false
-    );
+    const pedido = {
+        numero : numeroDePedido(leerPedidos()),
+        fecha : new Date().toISOString(),
+        cliente : datos.nombre,
+        entrega : {ciudad : datos.ciudad, pais : datos.pais, pago : datos.pago},
+        lineas : carrito.map(({id, nombre, precio, cantidad}) => ({id, nombre, precio, cantidad})),
+        ...cuentas,
+    };
+
+    guardarPedido(pedido);
+    mostrarComprobante(pedido);
+
+    carrito = [];
+    olvidarCarrito();
+    pintarCarrito();
+    pintarPedidos();
     formularioCompra.reset();
 });
 
+leerUrl();
 pintarBotonTema(document.documentElement.classList.contains("dark"));
 pintarCarrito();
-cargarCatalogo();
+pintarPedidos();
+cargarCatalogo().then(() => {
+    if (termino.trim()) programarBusqueda();
+});

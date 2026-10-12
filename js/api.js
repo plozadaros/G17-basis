@@ -1,4 +1,5 @@
 import { categorias } from "./datos.js";
+import { guardarRespaldo, leerRespaldo } from "./respaldo.js";
 
 const BASE = "https://dummyjson.com";
 const ESPERA_MAXIMA = 8000;
@@ -42,21 +43,38 @@ const pedirCategoria = async (categoria) => {
 };
 
 export const obtenerProductos = async () => {
-    const resultados = await Promise.allSettled(categorias.map(pedirCategoria));
-    const llegaron = resultados.filter(({status}) => status === "fulfilled");
+    try {
+        const resultados = await Promise.allSettled(categorias.map(pedirCategoria));
+        const llegaron = resultados.filter(({status}) => status === "fulfilled");
 
-    if (llegaron.length === 0) {
-        throw resultados[0].reason;
+        if (llegaron.length === 0) {
+            throw resultados[0].reason;
+        }
+
+        resultados
+            .filter(({status}) => status === "rejected")
+            .forEach(({reason}) => console.warn("Una categoria no respondio:", reason.message));
+
+        const productos = llegaron.flatMap(({value}) => value);
+        guardarRespaldo(productos);
+
+        return {
+            productos,
+            fallaron : resultados.length - llegaron.length,
+            origen : "api",
+            fecha : null,
+        };
+    } catch (error) {
+        const copia = leerRespaldo();
+        if (!copia) throw error;
+
+        return {
+            productos : copia.productos,
+            fallaron : 0,
+            origen : "respaldo",
+            fecha : copia.fecha,
+        };
     }
-
-    resultados
-        .filter(({status}) => status === "rejected")
-        .forEach(({reason}) => console.warn("Una categoria no respondio:", reason.message));
-
-    return {
-        productos : llegaron.flatMap(({value}) => value),
-        fallaron : resultados.length - llegaron.length,
-    };
 };
 
 export const obtenerProducto = async (id) => {

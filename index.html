@@ -179,11 +179,25 @@
     <section id="catalogo">
       <h2 class="titulo-seccion">Catálogo de productos</h2>
 
-      <p class="flex flex-wrap items-center gap-2 my-3">
-        <label class="basis-full" for="buscar">Buscar en la tienda</label>
-        <input class="campo" type="search" id="buscar" name="buscar"
-               placeholder="Ej.: phone" autocomplete="off" />
-      </p>
+      <p id="aviso-respaldo" class="bg-resalte border border-marca rounded-lg p-3 my-3 text-sm"
+         role="status" hidden></p>
+
+      <div class="flex flex-wrap gap-x-4">
+        <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
+          <label class="basis-full" for="buscar">Buscar en la tienda</label>
+          <input class="campo" type="search" id="buscar" name="buscar"
+                 placeholder="Ej.: reloj" autocomplete="off" />
+        </p>
+
+        <p class="flex flex-wrap items-center gap-2 my-3 flex-1 min-w-0">
+          <label class="basis-full" for="orden">Ordenar por</label>
+          <select class="campo" id="orden" name="orden">
+            <option value="catalogo">Orden del catálogo</option>
+            <option value="precio-asc">Precio: de menor a mayor</option>
+            <option value="precio-desc">Precio: de mayor a menor</option>
+          </select>
+        </p>
+      </div>
 
       <p id="estado-busqueda" class="text-sm text-texto-suave" role="status" aria-live="polite"></p>
 
@@ -204,6 +218,11 @@
       <p id="mensaje-envio" class="text-sm text-texto-suave mt-1"></p>
       <button id="vaciar" class="boton mt-4" type="button">Vaciar Carrito</button>
     </section>
+    <section id="pedidos" class="bg-tarjeta rounded-tarjeta p-6 mt-6" hidden>
+      <h2 class="titulo-seccion">Mis pedidos</h2>
+      <div id="lista-pedidos" class="mt-4"></div>
+    </section>
+
     <section id="compra" class="bg-tarjeta rounded-tarjeta p-6 mt-6">
       <h2 class="titulo-seccion">Finalizar compra</h2>
 

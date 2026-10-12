@@ -2,20 +2,30 @@ import { IGV, ENVIO_GRATIS_DESDE, costoDeEnvio } from "./tienda.js";
 
 export const CLAVE_CARRITO = "techcart_carrito";
 
+export const topeDe = ({stock}) => (typeof stock === "number" && stock > 0 ? stock : Infinity);
+
+export const enElTope = (linea) => linea.cantidad >= topeDe(linea);
+
 export const sumarLinea = (lineas, producto, cuantas = 1) => {
     const existente = lineas.find(({id}) => id === producto.id);
+
     if (!existente) {
-        return [...lineas, {...producto, cantidad: cuantas}];
+        return [...lineas, {...producto, cantidad: Math.min(cuantas, topeDe(producto))}];
     }
+
     return lineas.map((linea) =>
-        linea.id === producto.id ? {...linea, cantidad: linea.cantidad + cuantas} : linea);
+        linea.id === producto.id
+            ? {...linea, cantidad: Math.min(linea.cantidad + cuantas, topeDe(linea))}
+            : linea);
 };
 
 export const agregarAlCarrito = (carrito, producto, cuantas = 1) => sumarLinea(carrito, producto, cuantas);
 
 export const cambiarCantidad = (lineas, id, paso) =>
     lineas
-        .map((linea) => (linea.id === id ? {...linea, cantidad: linea.cantidad + paso} : linea))
+        .map((linea) => (linea.id === id
+            ? {...linea, cantidad: Math.min(linea.cantidad + paso, topeDe(linea))}
+            : linea))
         .filter(({cantidad}) => cantidad > 0);
 
 export const quitarDelCarrito = (carrito, id) => carrito.filter((linea) => linea.id !== id);
