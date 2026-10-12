@@ -1,106 +1,158 @@
-import { productos, agregarProducto } from "./datos.js";
-import formatearPrecio, { MONEDA } from "./formato.js";
-import {
-  IGV,
-  ENVIO_GRATIS_DESDE,
-  precioConIgv,
-  conStock,
-  buscar,
-  cuantosHayDe,
-  masBaratoConStock,
-  valorDelCatalogo,
-  resumenCarrito,
-  agruparPorCategoria,
-  aplicarDescuentoA,
-} from "./tienda.js";
-import { tarifaPorZona, costoDeEnvio } from "./envio.js";
+import { agregarAlCarrito, faltaParaEnvioGratis, guardarCarrito, leerCarrito, olvidarCarrito, quitarDelCarrito, resumenCarrito } from "./carrito.js";
+import {categorias, contarPorCategoria} from "./datos.js";
+import formatearPrecio from "./formato.js";
+import { ENVIO_GRATIS_DESDE } from "./tienda.js";
+import { filaCarrito, tarjetaProducto, esqueletoTarjeta, avisoCatalogo, avisoError } from "./ui.js";
+import { obtenerProductos } from "./api.js";
+const resumenCabecera = document.querySelector('#resumen-carrito');
+const listaCarrito = document.querySelector('#lista-carrito');
+const totalCarrito = document.querySelector('#total-carrito');
+const barraEnvio = document.querySelector('#barra-envio');
+const mensajeEnvio = document.querySelector('#mensaje-envio');
+const botonVaciar = document.querySelector('#vaciar');
+const grillaCatalogo = document.querySelector("#catalogo-grid");
+const estadoCatalogo = document.querySelector("#estado-catalogo");
 
-const appleWatch = {
-  id: 7,
-  nombre: "Apple Watch Series 4",
-  precio: 429.99,
-  categoria: "wearables",
-  stock: 6,
-  destacado: false,
-  envio: { zona: "Lima", dias: 2 },
-};
+let catalogo = [];
+const mensajeDeError = (error) => {
+    if(error.name === "TypeError") {
+        return ("No pudimos conectarnos con la tienda. Revisa tu conexion y vuelve a intentarlo.");
+    }
+    if(error.name === "TimeoutError") {
+        return "El servidor tardo demasiado en responde. Vuelve a intentarlo en un momento";
+    }
+    return error.message;
+}
+const pintarCatalogo = (lista = catalogo) => {
+    const html = lista.map(tarjetaProducto).join("");
+    grillaCatalogo.innerHTML="";
+    grillaCatalogo.insertAdjacentHTML("beforeEnd", html);
 
-const catalogo = agregarProducto(productos, appleWatch);
+    grillaCatalogo.setAttribute("aria-label", `Catalogo con ${lista.length} productos`);
+}
+const mostrarCargando = () => {
+    grillaCatalogo.innerHTML = esqueletoTarjeta().repeat(8);
+    estadoCatalogo.innerHTML = avisoCatalogo("Cargando productos...");
+}
+const mostrarExito = (lista) => {
+    const cuenta = contarPorCategoria(lista);
+    const detalle = categorias.map((categoria) => `${categoria} ${cuenta[categoria] ?? 0}`).join(" - ");
+    estadoCatalogo.innerHTML = avisoCatalogo(`${lista.length} productos - ${detalle}`);
+}
+const mostrarVacio = () => {
+    grillaCatalogo.innerHTML = "";
+    estadoCatalogo.innerHTML = avisoCatalogo("No hay productos para mostrar");
+}
+const mostrarError = (error) => {
+    grillaCatalogo.innerHTML = "";
+    estadoCatalogo.innerHTML = avisoError(mensajeDeError(error));
+}
 
-console.log("Catálogo original:", productos.length);
-console.log("Catálogo con el producto nuevo:", catalogo.length);
-console.log("Con stock:", conStock(catalogo).length);
-console.log("¿El original quedó intacto?", productos.length === 6);
+const cargarCatalogo = async () => {
+    mostrarCargando();
+    try {
+        catalogo = await obtenerProductos();
+        if (catalogo.length === 0){
+            mostrarVacio();
+            return;
+        }
+        pintarCatalogo();
+        mostrarExito(catalogo);
+    } catch (error) {
+        console.warn("No se pudo cargar el catalogo");
+        mostrarError(error);
+    } finally {
+        console.log("La carga termino, bien o mal. Esta linea corre siempre");
+    }
+}
+estadoCatalogo.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-accion='reintentar']");
+    if(!boton) return;
+    cargarCatalogo();
+})
+let carrito = leerCarrito();
 
-const { nombre, categoria, precio, stock } = appleWatch;
+const pintarCarrito = () => {
+    const {unidades, subTotal, igv, envio, total}= resumenCarrito(carrito);
+    resumenCabecera.textContent = unidades === 0 ? "Carrito vacio" : `${unidades} producto(s) - ${formatearPrecio(total)}`;
+    listaCarrito.innerHTML = carrito.map(filaCarrito).join("");
+    totalCarrito.textContent = unidades === 0 ? "Todavia no agregaste nada." : 
+        `Subtotal ${formatearPrecio(subTotal)} - IGV ${formatearPrecio(igv)} - ` +
+        `Envio ${formatearPrecio(envio)} - Total ${formatearPrecio(total)}`;
+    botonVaciar.classList.toggle("hidden", unidades === 0);
+    const avance = Math.min((subTotal/ ENVIO_GRATIS_DESDE) * 100, 100);
+    barraEnvio.style.width = `${avance}%`
 
-const ficha = `
-  Producto : ${nombre}
-  Categoría: ${categoria}
-  Precio   : ${formatearPrecio(precio)}
-  Con IGV  : ${formatearPrecio(precioConIgv(precio))}
-  Stock    : ${stock} unidades
-`;
+    const falta = faltaParaEnvioGratis(subTotal);
+    mensajeEnvio.textContent = falta === 0 ? "Tu pedido ya tiene envio gratis." : `Te faltan ${formatearPrecio(falta)} para el envio gratis.`;
+}
 
-console.log(ficha);
+grillaCatalogo.addEventListener('click', (evento) => {
+    const boton = evento.target.closest("button[data-accion='agregar']");
+    if(!boton) return;
 
-console.log("Moneda:", MONEDA, "· IGV:", `${IGV * 100}%`, "· Envío gratis desde:", formatearPrecio(ENVIO_GRATIS_DESDE));
-console.log("Valor del catálogo:", formatearPrecio(valorDelCatalogo(catalogo)));
-console.log('buscar("mac"):', buscar(catalogo, "mac").map(({ nombre }) => nombre));
+    const id = Number(boton.dataset.id);
+    const producto = catalogo.find( p => p.id === id);
+    if(!producto) return;
 
-console.log('cuantosHayDe("laptops"):', cuantosHayDe(catalogo, "laptops"));
-console.log('cuantosHayDe("televisores"):', cuantosHayDe(catalogo, "televisores"));
+    carrito = agregarAlCarrito(carrito , producto);
+    guardarCarrito(carrito);
+    pintarCarrito();
+});
 
-const barato = masBaratoConStock(catalogo);
-console.log("El más barato con stock:", barato.nombre, formatearPrecio(barato.precio));
+listaCarrito.addEventListener('click', (evento) => {
+    const boton = evento.target.closest("button[data-accion='quitar']");
+    if(!boton) return;
 
-console.log("Tarifa a Lima:", formatearPrecio(tarifaPorZona("Lima")));
-console.log("Tarifa a una zona desconocida:", formatearPrecio(tarifaPorZona("Marte")));
-console.log("Envío de un carrito de $20 a Internacional:", formatearPrecio(costoDeEnvio(20, "Internacional")));
-console.log("Envío de un carrito de $120 a Internacional:", formatearPrecio(costoDeEnvio(120, "Internacional")));
+    carrito = quitarDelCarrito(carrito, Number(boton.dataset.posicion));
+    guardarCarrito(carrito);
+    pintarCarrito();
+});
 
-const carrito = [
-  { nombre: "Apple MagSafe Battery Pack", precio: 99.99, cantidad: 1 },
-  { nombre: "AirPods Max", precio: 549.99, cantidad: 2 },
-];
+botonVaciar.addEventListener('click', () => {
+    carrito = [];
+    olvidarCarrito();
+    pintarCarrito();
+})
 
-console.log("Resumen del carrito:", resumenCarrito(carrito, costoDeEnvio, "Resto del Perú"));
-console.log("Resumen de un carrito chico:", resumenCarrito([{ nombre: "Cable USB-C", precio: 20, cantidad: 1 }], costoDeEnvio, "Lima"));
+const formularioCompra = document.querySelector('#form-compra');
+const estadoPedido = document.querySelector('#estado-pedido');
 
-const fichaCorta = ({ nombre, precio, envio: { zona, dias } }) => `
-  ${nombre} — ${formatearPrecio(precio)}
-  Llega a ${zona} en ${dias} ${dias === 1 ? "día" : "días"}
-`;
+const mostrarAviso = (mensaje, esError) => {
+    estadoPedido.querySelector("p")?.remove();
+    const aviso = document.createElement("p");
+    aviso.textContent = mensaje;
+    aviso.classList.add("font-semibold", esError ? "text-error" : "text-exito");
+    estadoPedido.append(aviso);
+}
 
-console.log("Fichas cortas:");
-catalogo.map(fichaCorta).forEach((texto) => console.log(texto));
+formularioCompra.addEventListener("submit", (evento) => {
+    evento.preventDefault();
 
-console.log("Agrupado por categoría:", agruparPorCategoria(catalogo));
+    if(!formularioCompra.checkValidity()){
+        formularioCompra.reportValidity();
+        mostrarAviso("Faltan datos por completar. Revisa los campos marcados", true);
+        return;
+    }
 
-const conDescuento = aplicarDescuentoA(catalogo, "laptops", 15);
+    if(carrito.length === 0 ) {
+        mostrarAviso("Tu carrito esta vacio: Agrega al menos un producto antes de confirmar.", true);
+        return;
+    }
 
-console.log("Laptops antes:", catalogo.filter(({ categoria }) => categoria === "laptops").map(({ nombre, precio }) => `${nombre} ${formatearPrecio(precio)}`));
-console.log("Laptops después:", conDescuento.filter(({ categoria }) => categoria === "laptops").map(({ nombre, precio }) => `${nombre} ${formatearPrecio(precio)}`));
-console.log("¿El accesorio quedó igual?", catalogo[5] === conDescuento[5]);
-console.log("¿La laptop fue reemplazada?", catalogo[0] === conDescuento[0]);
-console.log("Sin porcentaje, el valor por defecto:", aplicarDescuentoA(catalogo, "audio")[3].precio);
+    const datos = new FormData(formularioCompra);
+    const nombre = datos.get("nombre");
+    const unidades = Number(formularioCompra.elements.cantidad.value);
+    const {total} = resumenCarrito(carrito);
 
-const [primero, segundo, ...demas] = catalogo;
-console.log("Desestructurando el arreglo:", primero.nombre, "·", segundo.nombre, "· y", demas.length, "más");
+    mostrarAviso(
+        `
+        Gracias, ${nombre}. Tu pedido de ${carrito.length} producto(s) y ${unidades} unidad(es) 
+        ` + 
+        `por ${formatearPrecio(total)} quedo registrado.`, false
+    );
+    formularioCompra.reset();
 
-const precios = catalogo.map(({ precio }) => precio);
-console.log("El más caro con spread:", formatearPrecio(Math.max(...precios)));
-
-const sumar = (...valores) => valores.reduce((suma, valor) => suma + valor, 0);
-console.log("Rest juntando argumentos sueltos:", formatearPrecio(sumar(...precios)));
-
-const original = catalogo[2];
-const copiaSuperficial = { ...original, nombre: "iPad Mini (copia)" };
-const copiaProfunda = { ...original, nombre: "iPad Mini (copia buena)", envio: { ...original.envio } };
-copiaSuperficial.envio.dias = 99;
-console.log("La copia superficial comparte el envío:", original.envio.dias === 99);
-console.log("La copia profunda no lo comparte:", copiaProfunda.envio.dias);
-original.envio.dias = 4;
-
-const cupon = null;
-console.log("Descuento del cupón:", cupon?.porcentaje ?? 0);
+})
+pintarCarrito();
+cargarCatalogo();

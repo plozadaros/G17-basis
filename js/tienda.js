@@ -1,45 +1,42 @@
 export const IGV = 0.18;
-export const ENVIO_GRATIS_DESDE = 50;
+export const ENVIO_GRATIS_DESDE = 5000;
 
-const REDONDEO = 2;
+export const precioConIgv = (precio) => precio * (1 + IGV);
 
-const redondear = (valor) => Number(valor.toFixed(REDONDEO));
+export function tarifaPorZona(zona) {
+    switch(zona) {
+        case "Lima" : 
+            return 0;
+        case "Resto del Peru":
+            return 9.99;
+        case "Internacional":
+            return 29.9
+        default : 
+            return 9.99;
+    }
+}
 
-export const precioConIgv = (precio) => redondear(precio * (1 + IGV));
+export const buscar = (items, texto) => items.filter(({nombre}) => nombre.toLowerCase().includes(texto.toLowerCase()));
+export const masCaro = (items) => items.reduce((mayor, p) => (p.precio > mayor.precio ? p : mayor), items[0]);
+export const agregarProducto = (items, nuevoProducto) => [...items, nuevoProducto];
+export const sumar = (...precios) => precios.reduce((suma, n) => suma + n, 0);
+export const actualizarPrecio = (producto, precio) => ({...producto, precio});
 
-export const conStock = (items) => items.filter(({ stock }) => stock > 0);
+export const conDescuento = (precio, porcentaje = 10) => precio - precio * (porcentaje / 100);
+export const costoDeEnvio = (total, zona = "Resto del Peru") => total >= ENVIO_GRATIS_DESDE ? 0 : tarifaPorZona(zona);
 
-export const buscar = (items, texto) =>
-  items.filter(({ nombre }) => nombre.toLowerCase().includes(texto.toLowerCase()));
-
-export const valorDelCatalogo = (items) =>
-  redondear(items.reduce((suma, { precio, stock }) => suma + precio * stock, 0));
-
-export const resumenCarrito = (items, costoDeEnvio, zona = "Lima") => {
-  const unidades = items.reduce((suma, { cantidad }) => suma + cantidad, 0);
-  const total = redondear(items.reduce((suma, { precio, cantidad }) => suma + precio * cantidad, 0));
-  const envio = costoDeEnvio(total, zona);
-  return { unidades, total, envio, zona };
+export const resumenTienda = (items) => {
+    const disponibles = items.filter(({stock}) => stock > 0);
+    const agotados = items.length - disponibles.length;
+    const valorCatalogo = sumar(...items.map(({precio}) => precio));
+    const valorInventario = items.reduce((suma, {precio, stock}) => suma + precio * stock, 0);
+    const { nombre : masCaroDe } = masCaro(items);
+    return {
+        productos : items.length,
+        disponibles : disponibles.length, 
+        agotados,
+        valorCatalogo,
+        valorInventario,
+        masCaroDe,
+    };
 };
-
-export const cuantosHayDe = (items, categoria) =>
-  items.filter((producto) => producto.categoria === categoria).length;
-
-export const masBaratoConStock = (items) =>
-  conStock(items).reduce((barato, producto) => (producto.precio < barato.precio ? producto : barato));
-
-export const agruparPorCategoria = (items) =>
-  items.reduce(
-    (grupos, producto) => ({
-      ...grupos,
-      [producto.categoria]: [...(grupos[producto.categoria] ?? []), producto],
-    }),
-    {}
-  );
-
-export const aplicarDescuentoA = (items, categoria, porcentaje = 10) =>
-  items.map((producto) =>
-    producto.categoria === categoria
-      ? { ...producto, precio: redondear(producto.precio * (1 - porcentaje / 100)) }
-      : producto
-  );
